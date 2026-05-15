@@ -1,0 +1,313 @@
+<style>
+  .pkm-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #c88080;
+    text-transform: uppercase;
+    font-family: Georgia, serif;
+    text-align: center;
+    margin: 8px 0 4px 0;
+  }
+  .pkm-card {
+    background: rgba(13,10,5,0.7);
+    border: 1px solid rgba(200,40,40,0.25);
+    border-top: 2px solid rgba(200,40,40,0.55);
+    border-radius: 3px;
+    padding: 8px;
+    margin-bottom: 4px;
+  }
+  .pkm-stat-cell {
+    border-radius: 3px;
+    padding: 4px 6px;
+    text-align: center;
+    flex: 1;
+  }
+  .pkm-stat-cell.hp   { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.2); }
+  .pkm-stat-cell.atk  { background: rgba(216,56,56,0.12);   border: 1px solid rgba(216,56,56,0.4); }
+  .pkm-stat-cell.def  { background: rgba(232,184,32,0.12);  border: 1px solid rgba(232,184,32,0.4); }
+  .pkm-stat-cell.spatk { background: rgba(40,88,200,0.12);  border: 1px solid rgba(40,88,200,0.4); }
+  .pkm-stat-cell.spdef { background: rgba(88,168,48,0.12);  border: 1px solid rgba(88,168,48,0.4); }
+  .pkm-stat-cell.spd  { background: rgba(232,160,200,0.12); border: 1px solid rgba(232,160,200,0.4); }
+  .pkm-stat-lbl {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+  .pkm-stat-lbl.hp    { color: #ccc; }
+  .pkm-stat-lbl.atk   { color: #e88080; }
+  .pkm-stat-lbl.def   { color: #e8c860; }
+  .pkm-stat-lbl.spatk { color: #80a0e8; }
+  .pkm-stat-lbl.spdef { color: #98d8a0; }
+  .pkm-stat-lbl.spd   { color: #e8b0d0; }
+  .type-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-right: 4px;
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  }
+  .move-row {
+    border-bottom: 1px solid rgba(200,40,40,0.12);
+    padding: 4px 0;
+  }
+  .move-row:last-child { border-bottom: none; }
+</style>
+
+<script>
+  var TYPE_COLORS = {
+    "Normal":   "#a8a878", "Fire":    "#f08030", "Water":   "#6890f0",
+    "Grass":    "#78c850", "Electric":"#f8d030", "Ice":     "#98d8d8",
+    "Fighting": "#c03028", "Poison":  "#a040a0", "Ground":  "#e0c068",
+    "Flying":   "#a890f0", "Psychic": "#f85888", "Bug":     "#a8b820",
+    "Rock":     "#b8a038", "Ghost":   "#705898", "Dragon":  "#7038f8",
+    "Dark":     "#705848", "Steel":   "#b8b8d0", "Fairy":   "#ee99ac"
+  };
+
+  function rollMove(moveName, atkMod, dmgDice) {
+    const d = (record && record.data) || {};
+    const mod = parseInt(d[atkMod] || 0, 10);
+    const pkName = record.name || "Pokemon";
+    const sign = mod >= 0 ? "+" : "";
+    api.promptRoll(
+      `${pkName} — ${moveName} (Accuracy Check)`,
+      `1d20${sign}${mod}`,
+      [],
+      {
+        rollType: "accuracy",
+        moveName: moveName,
+        actorName: pkName,
+        damageRoll: dmgDice,
+        recordId: record._id
+      },
+      "system"
+    );
+  }
+
+  function getTypeBadgeHTML(type) {
+    if (!type) return "";
+    var col = TYPE_COLORS[type] || "#666";
+    return '<span class="type-badge" style="background:' + col + ';">' + type + '</span>';
+  }
+
+  function drawTypeCanvas() {
+    var c = api.getCanvas("typeCanvas");
+    if (!c) return;
+    var W = c.width, H = c.height;
+    c.clearRect(0, 0, W, H);
+    var d = (record && record.data) || {};
+    var t1 = d.poke_type1 || "";
+    var t2 = d.poke_type2 || "";
+    var x = 4;
+    function drawBadge(type, xPos) {
+      if (!type) return xPos;
+      var col = TYPE_COLORS[type] || "#555";
+      var tw = c.measureText(type).width + 16;
+      c.beginPath();
+      c.roundRect(xPos, 2, tw, H - 4, 8);
+      c.setFillStyle(col);
+      c.fill();
+      c.setFont("700 11px sans-serif");
+      c.setTextAlign("center");
+      c.setTextBaseline("middle");
+      c.setFillStyle("#fff");
+      c.setShadowColor("rgba(0,0,0,0.5)");
+      c.setShadowBlur(2);
+      c.fillText(type, xPos + tw / 2, H / 2);
+      c.setShadowBlur(0);
+      return xPos + tw + 6;
+    }
+    x = drawBadge(t1, x);
+    drawBadge(t2, x);
+  }
+
+  function onLoad() {
+    drawTypeCanvas();
+  }
+
+  function onRecordChanged(event) {
+    drawTypeCanvas();
+  }
+</script>
+
+<!-- ═══ POKEMON HEADER ═══ -->
+<div style="display: flex; flex-direction: row; gap: 10px; align-items: flex-start; margin-bottom: 8px;">
+  <div style="width: 90px; height: 90px; min-width: 90px;">
+    <portrait field="portrait" width="90" height="90"></portrait>
+  </div>
+  <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+    <namefield field="name" label="Pokémon Name" size="md" bold="true" width="100%" placeholder="Pokémon name..."></namefield>
+    <div style="display: flex; flex-direction: row; gap: 6px;">
+      <stringfield field="poke_type1" label="Type 1" size="xs" width="30%"
+        onchange="drawTypeCanvas();" placeholder="Fire..."></stringfield>
+      <stringfield field="poke_type2" label="Type 2" size="xs" width="30%"
+        onchange="drawTypeCanvas();" placeholder="Flying..."></stringfield>
+      <stringfield field="poke_stage" label="Stage" size="xs" width="40%" placeholder="Final Stage..."></stringfield>
+    </div>
+    <!-- Type badge canvas -->
+    <canvas field="typeCanvas" width="300" height="26"
+      style="width: 100%; height: 26px; display: block;"
+      onload="drawTypeCanvas();"
+      onrecordchange="drawTypeCanvas();">
+    </canvas>
+    <div style="display: flex; flex-direction: row; gap: 6px;">
+      <stringfield field="poke_size" label="Size" size="xs" width="50%" placeholder="Medium..."></stringfield>
+      <stringfield field="poke_weight" label="Weight" size="xs" width="50%" placeholder="Heavy..."></stringfield>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ STATS ═══ -->
+<div class="pkm-label">✦ Stats ✦</div>
+<div class="pkm-card">
+  <!-- HP row -->
+  <div style="display: flex; flex-direction: row; gap: 4px; margin-bottom: 6px;">
+    <div class="pkm-stat-cell hp" style="flex: 2;">
+      <div class="pkm-stat-lbl hp">Current HP</div>
+      <numberfield field="hp_current" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell hp" style="flex: 2;">
+      <div class="pkm-stat-lbl hp">Max HP</div>
+      <numberfield field="poke_hp" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell spd" style="flex: 1;">
+      <div class="pkm-stat-lbl spd">SPD</div>
+      <numberfield field="poke_speed" label="" size="xs" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+      <div class="pkm-stat-lbl spd" style="margin-top: 1px; font-size: 8px;">(ft)</div>
+      <numberfield field="poke_speed_ft" label="" size="xs" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+  </div>
+  <!-- 4 stats row -->
+  <div style="display: flex; flex-direction: row; gap: 4px;">
+    <div class="pkm-stat-cell atk">
+      <div class="pkm-stat-lbl atk">Attack</div>
+      <numberfield field="poke_attack" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell def">
+      <div class="pkm-stat-lbl def">Defense</div>
+      <numberfield field="poke_defense" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell spatk">
+      <div class="pkm-stat-lbl spatk">Sp. Atk</div>
+      <numberfield field="poke_spatk" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell spdef">
+      <div class="pkm-stat-lbl spdef">Sp. Def</div>
+      <numberfield field="poke_spdef" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+  </div>
+  <!-- Move modifiers -->
+  <div style="display: flex; flex-direction: row; gap: 4px; margin-top: 6px;">
+    <div class="pkm-stat-cell atk" style="flex: 1;">
+      <div class="pkm-stat-lbl atk">ATK Mod</div>
+      <numberfield field="poke_atk_mod" label="" size="xs" defaultvalue="0" hidecontrols="true" showsign="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell spatk" style="flex: 1;">
+      <div class="pkm-stat-lbl spatk">SpATK Mod</div>
+      <numberfield field="poke_spatk_mod" label="" size="xs" defaultvalue="0" hidecontrols="true" showsign="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell hp" style="flex: 1;">
+      <div class="pkm-stat-lbl hp">Effect Mod</div>
+      <numberfield field="poke_effect_mod" label="" size="xs" defaultvalue="0" hidecontrols="true" showsign="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell hp" style="flex: 1;">
+      <div class="pkm-stat-lbl hp">Held Item</div>
+      <stringfield field="held_item" label="" size="xs" width="100%" placeholder="None"></stringfield>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PASSIVES ═══ -->
+<div class="pkm-label">✦ Passives &amp; Skills ✦</div>
+<div class="pkm-card">
+  <stringfield field="poke_stat_passives" label="Stat Passives" size="xs" multiline="true" maxrows="3" width="100%" placeholder="Growl (+1 Defense), Blaze..."></stringfield>
+  <div style="margin-top: 4px;">
+    <stringfield field="poke_ability_passives" label="Ability Passives" size="xs" multiline="true" maxrows="3" width="100%" placeholder="Overgrow, Flash Fire..."></stringfield>
+  </div>
+  <div style="margin-top: 4px;">
+    <stringfield field="poke_skills" label="Skills" size="xs" multiline="true" maxrows="2" width="100%" placeholder="Flight (can fly), Swim..."></stringfield>
+  </div>
+</div>
+
+<!-- ═══ MOVES ═══ -->
+<div class="pkm-label">✦ Moves ✦</div>
+<div class="pkm-card">
+  <div style="display: flex; flex-direction: row; gap: 4px; margin-bottom: 6px;">
+    <button field="rollMove1" size="xs" label="Roll Move 1" variant="outline"
+      onclick="rollMove(record && record.data && record.data.move1_name || 'Move 1', 'poke_atk_mod', record && record.data && record.data.move1_damage || '2d8');">
+    </button>
+    <button field="rollMove2" size="xs" label="Roll Move 2" variant="outline"
+      onclick="rollMove(record && record.data && record.data.move2_name || 'Move 2', 'poke_atk_mod', record && record.data && record.data.move2_damage || '2d8');">
+    </button>
+    <button field="rollMove3" size="xs" label="Roll Move 3" variant="outline"
+      onclick="rollMove(record && record.data && record.data.move3_name || 'Move 3', 'poke_atk_mod', record && record.data && record.data.move3_damage || '2d8');">
+    </button>
+  </div>
+
+  <!-- Move 1 -->
+  <div class="move-row">
+    <div style="display: flex; flex-direction: row; gap: 4px;">
+      <stringfield field="move1_name" label="Move 1 Name" size="xs" width="40%" placeholder="Flamethrower..."></stringfield>
+      <stringfield field="move1_type" label="Type" size="xs" width="25%" placeholder="Fire..."></stringfield>
+      <stringfield field="move1_category" label="Category" size="xs" width="35%" placeholder="Special Attack..."></stringfield>
+    </div>
+    <div style="display: flex; flex-direction: row; gap: 4px; margin-top: 2px;">
+      <stringfield field="move1_range" label="Range" size="xs" width="35%" placeholder="Ranged(20ft)..."></stringfield>
+      <stringfield field="move1_uses" label="Uses" size="xs" width="25%" placeholder="3/day..."></stringfield>
+      <stringfield field="move1_damage" label="Damage" size="xs" width="40%" placeholder="4d10..."></stringfield>
+    </div>
+    <stringfield field="move1_effect" label="Effect" size="xs" multiline="true" maxrows="2" width="100%" placeholder="On hit, if you got 15 or higher..."></stringfield>
+  </div>
+
+  <!-- Move 2 -->
+  <div class="move-row">
+    <div style="display: flex; flex-direction: row; gap: 4px;">
+      <stringfield field="move2_name" label="Move 2 Name" size="xs" width="40%" placeholder="Move name..."></stringfield>
+      <stringfield field="move2_type" label="Type" size="xs" width="25%" placeholder="Type..."></stringfield>
+      <stringfield field="move2_category" label="Category" size="xs" width="35%" placeholder="Category..."></stringfield>
+    </div>
+    <div style="display: flex; flex-direction: row; gap: 4px; margin-top: 2px;">
+      <stringfield field="move2_range" label="Range" size="xs" width="35%" placeholder="Melee..."></stringfield>
+      <stringfield field="move2_uses" label="Uses" size="xs" width="25%" placeholder="At-Will..."></stringfield>
+      <stringfield field="move2_damage" label="Damage" size="xs" width="40%" placeholder="3d8..."></stringfield>
+    </div>
+    <stringfield field="move2_effect" label="Effect" size="xs" multiline="true" maxrows="2" width="100%" placeholder="Effect description..."></stringfield>
+  </div>
+
+  <!-- Move 3 -->
+  <div class="move-row">
+    <div style="display: flex; flex-direction: row; gap: 4px;">
+      <stringfield field="move3_name" label="Move 3 Name" size="xs" width="40%" placeholder="Move name..."></stringfield>
+      <stringfield field="move3_type" label="Type" size="xs" width="25%" placeholder="Type..."></stringfield>
+      <stringfield field="move3_category" label="Category" size="xs" width="35%" placeholder="Category..."></stringfield>
+    </div>
+    <div style="display: flex; flex-direction: row; gap: 4px; margin-top: 2px;">
+      <stringfield field="move3_range" label="Range" size="xs" width="35%" placeholder="Self..."></stringfield>
+      <stringfield field="move3_uses" label="Uses" size="xs" width="25%" placeholder="1/day..."></stringfield>
+      <stringfield field="move3_damage" label="Damage" size="xs" width="40%" placeholder="5d12..."></stringfield>
+    </div>
+    <stringfield field="move3_effect" label="Effect" size="xs" multiline="true" maxrows="2" width="100%" placeholder="Effect description..."></stringfield>
+  </div>
+
+</div>
+
+<!-- ═══ BIOLOGY ═══ -->
+<div class="pkm-label">✦ Biology ✦</div>
+<div class="pkm-card">
+  <div style="display: flex; flex-direction: row; gap: 6px;">
+    <stringfield field="poke_diet" label="Diet" size="xs" width="33%" placeholder="Carnivore..."></stringfield>
+    <stringfield field="poke_egg_group" label="Egg Group" size="xs" width="67%" placeholder="Monster / Dragon..."></stringfield>
+  </div>
+  <div style="display: flex; flex-direction: row; gap: 6px; margin-top: 4px;">
+    <stringfield field="poke_nature" label="Nature" size="xs" width="33%" placeholder="Jolly..."></stringfield>
+    <dropdown field="poke_gender" label="Gender" size="xs" width="33%"
+      options='[{"label":"Male","value":"male"},{"label":"Female","value":"female"},{"label":"Unknown","value":"unknown"}]'>
+    </dropdown>
+    <stringfield field="poke_nickname" label="Nickname" size="xs" width="34%" placeholder="Optional..."></stringfield>
+  </div>
+</div>

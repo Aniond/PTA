@@ -1,0 +1,46 @@
+recordType,name,ability_category,ability_trigger,ability_effect,ability_description
+abilities,Overgrow,Stat Passive,HP Threshold,"When you are below 25% of your max HP your Grass-type attacks deal +3 damage.",The Pokémon's Grass-type moves surge with power as it nears defeat.
+abilities,Blaze,Stat Passive,HP Threshold,"When you are below 25% of your max HP your Fire-type attacks deal +3 damage.",The Pokémon's Fire-type moves surge with power as it nears defeat.
+abilities,Torrent,Stat Passive,HP Threshold,"When you are below 25% of your max HP your Water-type attacks deal +3 damage.",The Pokémon's Water-type moves surge with power as it nears defeat.
+abilities,Swarm,Stat Passive,HP Threshold,"When you are below 25% of your max HP your Bug-type attacks deal +3 damage.",The Pokémon's Bug-type moves surge with power as it nears defeat.
+abilities,Guts,Stat Passive,Status Condition,"When you are afflicted with a status condition your Attack is +2.",Afflictions only make this Pokémon fight harder — Attack rises when suffering a status.
+abilities,Flash Fire,Ability Passive,Triggered,"When you are hit by a Fire-type attack halve the damage then your next Fire-type attack deals +3 damage.",Absorbs incoming fire to boost the next Fire-type move.
+abilities,Water Absorb,Ability Passive,Triggered,"When you are hit by a Water-type attack halve the damage after applying weakness and resistance then you heal that much HP instead of taking damage.",Converts incoming water attacks into HP recovery.
+abilities,Volt Absorb,Ability Passive,Triggered,"When you are hit by an Electric-type attack halve the damage then you regain that much HP instead of taking damage.",Converts incoming electric attacks into HP recovery.
+abilities,Static,Ability Passive,Triggered,"When you are hit with a melee attack roll 1d4. On a 4 the attacker is Paralyzed.",A static charge that may Paralyze attackers who make contact.
+abilities,Compound Eyes,Ability Passive,Passive,"Your attacks that have an Accuracy Check modifier instead have a +2 bonus.",Multifaceted eyes greatly improve the Pokémon's accuracy.
+abilities,Tinted Lens,Ability Passive,Passive,"When you use a move that isn't very effective against the target halve the resistance to the damage.",Powerful lenses neutralize the foe's resistance to not-very-effective moves.
+abilities,Shield Dust,Ability Passive,Passive,"You cannot be affected by the secondary effects of attacks.",A protective dust that blocks all secondary effects of moves.
+abilities,Shed Skin,Ability Passive,End of Round,"At the end of each round you may roll 1d4. On a 4 you are cured of one affliction.",Occasionally sheds its skin to cure itself of afflictions.
+abilities,Shell Armor,Ability Passive,Passive,"Critical hits against you deal normal damage instead.",A hard shell that prevents the foe from landing critical hits.
+abilities,Thick Fat,Ability Passive,Passive,"Fire and Ice-type attacks deal half damage to you before applying weakness.",A thick layer of fat insulates against Fire and Ice attacks.
+abilities,Intimidate,Stat Passive,On Enter,"When you enter combat all opposing Pokémon have -1 Attack until their next turn.",The Pokémon's fearsome presence lowers enemy Attack on entry.
+abilities,Technician,Ability Passive,Passive,"When rolling damage replace any rolled 1s or 2s with 3.",Boosts the effectiveness of weaker moves by elevating minimum damage rolls.
+abilities,Synchronize,Ability Passive,Triggered,"When you are afflicted with Poison Paralysis or Burn the attacker receives the same affliction.",Passes Poison Paralysis or Burn back to whoever inflicted it.
+abilities,Magic Guard,Ability Passive,Passive,"You can only be damaged directly by moves — weather terrain and other passive effects cannot harm you.",Only direct attacks can damage this Pokémon — passive damage is ignored.
+abilities,Adaptability,Stat Passive,Passive,"When you use a move that matches one of your types add +3 damage instead of the normal STAB bonus.",Amplifies the same-type attack bonus to +3 instead of the standard amount.
+abilities,Run Away,Ability Passive,Passive,"You can always successfully flee from wild Pokémon encounters.",Guarantees escape from any wild Pokémon encounter.
+abilities,Cute Charm,Ability Passive,Triggered,"Whenever you are hit with a melee attack roll 1d4. On 4 Infatuate the attacker.",Charming presence may Infatuate attackers who make contact.
+abilities,Competitive,Stat Passive,Triggered,"+2 Special Attack if a foe lowers any of your stats.",Sharply boosts Special Attack whenever a foe lowers the Pokémon's stats.
+abilities,Agility Passive,Stat Passive,Passive,"+2 Speed.",This Pokémon is naturally quicker than its kind — +2 Speed permanently.
+abilities,Nasty Plot Passive,Stat Passive,Passive,"+1 Special Attack.",This Pokémon is scheming — +1 Special Attack permanently.
+abilities,Charm Passive,Stat Passive,Passive,"+1 Defense.",This Pokémon's charm grants it better Defense permanently.
+abilities,Pressure,Ability Passive,Triggered,"When you are hit with a move the attacker's uses of that move for the day are reduced by 1.",Drains the opponent's will — reduces the daily uses of any move that hits.
+abilities,Unnerve,Ability Passive,Passive,"Opponents cannot use held Berries during combat.",Unnerves opposing Pokémon so they cannot use their held Berry in battle.
+abilities,Multiscale,Ability Passive,Once Per Combat,"When you are at full HP halve the damage of the first hit you take in combat.",A mysterious aura that halves the first hit at full HP.
+abilities,Inner Focus,Ability Passive,Passive,"You cannot be Stunned.",Deep concentration prevents this Pokémon from being Stunned.
+abilities,Cursed Body,Ability Passive,Triggered,"When you are hit by a move roll 1d4. On 4 the attacker can no longer use that move.",A haunted body that may disable the move that just struck it.
+abilities,Shadow Tag,Ability Passive,Passive,"Opposing Pokémon cannot flee or be switched out.",An eerie shadow that prevents opponents from escaping.
+abilities,No Guard,Ability Passive,Passive,"All attacks you make and all attacks made against you hit automatically skipping the Accuracy Check.",Both this Pokémon and its opponents never miss — attacks always land.
+abilities,Steadfast,Stat Passive,Triggered,"+1 Speed whenever you are Stunned.",Being Stunned hardens the Pokémon's resolve — Speed rises each time.
+abilities,Quick Feet,Stat Passive,Triggered,"+2 Speed when afflicted with a status condition.",A status condition actually boosts this Pokémon's Speed.
+abilities,Limber,Ability Passive,Passive,"You are immune to Paralysis.",A limber body makes this Pokémon completely immune to Paralysis.
+abilities,Immunity,Ability Passive,Passive,"You are immune to Poison and Toxification.",A robust immune system prevents all poisoning.
+abilities,Rain Dish,Ability Passive,Weather,"During Rain you recover 1d6 HP at the start of each of your turns.",Absorbs rainfall to steadily restore HP in rainy weather.
+abilities,Solar Power,Ability Passive,Weather,"In harsh sunlight your Special Attack is +2 but you lose 1d6 HP each turn.",Draws on sunlight for power at the cost of HP each turn.
+abilities,Gluttony,Ability Passive,Passive,"You can use a held Berry when at or below 50% of your max HP instead of 25%.",Can eat a held Berry earlier than normal — triggers at 50% HP.
+abilities,Defiant,Stat Passive,Triggered,"If a foe lowers any of your stats you have +2 Attack until your lowered stats are returned to normal.",A fighting spirit — Attack surges whenever a foe lowers any of the Pokémon's stats.
+abilities,Prankster,Ability Passive,Passive,"Your attacks that do not deal damage on hit have Priority.",Gives Priority to status moves by using trickery and speed.
+abilities,Growth,Stat Passive,Passive,"+1 Special Attack.",A growth-oriented nature — +1 Special Attack permanently.
+abilities,Power Construct,Ability Passive,Special,"Zygarde operates as individual cells. 10 cells form 10% form. 100 cells form 50% form. 300 cells form Complete form. Higher forms access all moves of lesser forms.",Allows Zygarde to combine cells and change into more powerful forms in combat.
+abilities,Force of Nature,Ability Passive,Free Action,"As a free action you may change into your Therian Form or change back into your Incarnate Form.",Allows the Forces of Nature legendaries to switch between forms freely.

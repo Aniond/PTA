@@ -1,0 +1,357 @@
+<style>
+  :root {
+    --pta-blue: #2a4a9e;
+    --pta-blue-dark: #1a3478;
+    --pta-yellow: #ffcb05;
+    --pta-red: #c82828;
+    --pta-red-dim: #8B2020;
+    --pta-bg: #0d0a05;
+    --pta-card-bg: rgba(13,10,5,0.85);
+    --pta-border: rgba(200,40,40,0.3);
+    --pta-text-dim: #8a7a6a;
+  }
+  .pta-banner {
+    background: linear-gradient(90deg, #2a4a9e 0%, #1a3478 100%);
+    color: #ffcb05;
+    padding: 10px 16px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    text-align: center;
+    border: 2px solid #1a1a1a;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .pta-banner-title {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-shadow: 2px 2px 0 #1a1a1a, -1px -1px 0 #1a1a1a;
+    font-family: Georgia, serif;
+  }
+  .pta-banner-sub {
+    display: block;
+    font-size: 10px;
+    color: #ffffff;
+    letter-spacing: 3px;
+    margin-top: 2px;
+    font-weight: 600;
+  }
+  .pta-pokeball {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #c82828 0%, #c82828 50%, #fff 50%, #fff 100%);
+    border: 2px solid #1a1a1a;
+    vertical-align: middle;
+    margin: 0 8px;
+    position: relative;
+  }
+  .pta-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #c88080;
+    text-transform: uppercase;
+    font-family: Georgia, serif;
+    text-align: center;
+    margin: 8px 0 4px 0;
+  }
+  .pta-card {
+    background: rgba(13,10,5,0.7);
+    border: 1px solid rgba(200,40,40,0.25);
+    border-top: 2px solid rgba(200,40,40,0.55);
+    border-radius: 3px;
+    padding: 8px;
+    margin-bottom: 4px;
+  }
+  .pta-stat-cell {
+    background: rgba(200,40,40,0.08);
+    border: 1px solid rgba(200,40,40,0.3);
+    border-radius: 3px;
+    padding: 4px 6px;
+    text-align: center;
+    flex: 1;
+  }
+  .pta-stat-cell.hp { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.2); }
+  .pta-stat-cell.atk { background: rgba(216,56,56,0.12); border-color: rgba(216,56,56,0.4); }
+  .pta-stat-cell.def { background: rgba(232,184,32,0.12); border-color: rgba(232,184,32,0.4); }
+  .pta-stat-cell.spatk { background: rgba(40,88,200,0.12); border-color: rgba(40,88,200,0.4); }
+  .pta-stat-cell.spdef { background: rgba(88,168,48,0.12); border-color: rgba(88,168,48,0.4); }
+  .pta-stat-cell.spd { background: rgba(232,160,200,0.12); border-color: rgba(232,160,200,0.4); }
+  .pta-stat-label {
+    font-size: 9px;
+    color: #c88080;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+  .pta-stat-label.atk { color: #e88080; }
+  .pta-stat-label.def { color: #e8c860; }
+  .pta-stat-label.spatk { color: #80a0e8; }
+  .pta-stat-label.spdef { color: #98d8a0; }
+  .pta-stat-label.spd { color: #e8b0d0; }
+  .pta-skill-row-bg {
+    background: rgba(255,255,255,0.02);
+    border-radius: 2px;
+    padding: 2px 4px;
+    margin-bottom: 2px;
+  }
+</style>
+
+<script>
+  function rollSkill(skillName, statKey) {
+    const d = (record && record.data) || {};
+    const skillField = "skill_" + statKey.toLowerCase().replace(/[^a-z]/g, "_");
+    const skillVal = parseInt(d[skillField] || 0, 10);
+    const actorName = d.character_name || record.name || "Trainer";
+    const sign = skillVal >= 0 ? "+" : "";
+    api.promptRoll(
+      `${actorName} — ${skillName}`,
+      `1d20${sign}${skillVal}`,
+      [],
+      { rollType: "skill", skillName: skillName, actorName: actorName, recordId: record._id },
+      "system"
+    );
+  }
+</script>
+
+<!-- ═══ PTA3 BANNER ═══ -->
+<div class="pta-banner">
+  <div class="pta-banner-title">
+    <span class="pta-pokeball"></span>POKÉMON<span class="pta-pokeball"></span>
+  </div>
+  <span class="pta-banner-sub">TABLETOP ADVENTURES 3</span>
+</div>
+
+<!-- ═══ IDENTITY ═══ -->
+<div style="display: flex; flex-direction: row; gap: 10px; align-items: flex-start; margin-bottom: 8px;">
+  <div style="width: 90px; height: 90px; min-width: 90px; min-height: 90px;">
+    <portrait field="portrait" width="90" height="90"></portrait>
+  </div>
+  <div style="display: flex; flex: 1; flex-direction: column; gap: 4px;">
+    <namefield
+      placeholder="Trainer name..."
+      label="Character Name"
+      size="md"
+      bold="true"
+      width="100%"
+      field="name"
+    ></namefield>
+    <div style="display: flex; flex-direction: row; gap: 6px;">
+      <stringfield placeholder="Player..." label="Player" field="player_name" size="xs" width="50%"></stringfield>
+      <stringfield placeholder="Class..." label="Class" field="trainer_class" size="xs" width="30%"></stringfield>
+      <numberfield label="Level" field="level" size="xs" width="20%" defaultvalue="1" hidecontrols="true"></numberfield>
+    </div>
+    <div style="display: flex; flex-direction: row; gap: 6px;">
+      <stringfield placeholder="Origin..." label="Origin" field="origin" size="xs" width="40%"></stringfield>
+      <numberfield label="Honor" field="honor_total" size="xs" width="30%" defaultvalue="0" hidecontrols="true"></numberfield>
+      <numberfield label="Credits ₽" field="credits" size="xs" width="30%" defaultvalue="0" hidecontrols="true"></numberfield>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COMBAT STATS ═══ -->
+<div class="pta-label">✦ Combat ✦</div>
+<div class="pta-card">
+
+  <!-- HP Row -->
+  <div style="display: flex; flex-direction: row; gap: 4px; margin-bottom: 6px;">
+    <div class="pta-stat-cell hp">
+      <div class="pta-stat-label">Current HP</div>
+      <numberfield field="hp_current" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+    <div class="pta-stat-cell hp">
+      <div class="pta-stat-label">Max HP</div>
+      <numberfield field="hp_max" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+  </div>
+
+  <!-- 5 Stats Row -->
+  <div style="display: flex; flex-direction: row; gap: 4px;">
+
+    <div class="pta-stat-cell atk">
+      <div class="pta-stat-label atk">ATK</div>
+      <numberfield field="stat_attack" label="" size="xs" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+      <div class="pta-stat-label atk" style="margin-top: 2px;">Mod</div>
+      <numberfield field="mod_attack" label="" size="xs" defaultvalue="0" hidecontrols="true" showsign="true" width="100%"></numberfield>
+    </div>
+
+    <div class="pta-stat-cell def">
+      <div class="pta-stat-label def">DEF</div>
+      <numberfield field="stat_defense" label="" size="xs" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+      <div class="pta-stat-label def" style="margin-top: 2px;">Mod</div>
+      <numberfield field="mod_defense" label="" size="xs" defaultvalue="0" hidecontrols="true" showsign="true" width="100%"></numberfield>
+    </div>
+
+    <div class="pta-stat-cell spatk">
+      <div class="pta-stat-label spatk">SpATK</div>
+      <numberfield field="stat_spatk" label="" size="xs" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+      <div class="pta-stat-label spatk" style="margin-top: 2px;">Mod</div>
+      <numberfield field="mod_spatk" label="" size="xs" defaultvalue="0" hidecontrols="true" showsign="true" width="100%"></numberfield>
+    </div>
+
+    <div class="pta-stat-cell spdef">
+      <div class="pta-stat-label spdef">SpDEF</div>
+      <numberfield field="stat_spdef" label="" size="xs" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+      <div class="pta-stat-label spdef" style="margin-top: 2px;">Mod</div>
+      <numberfield field="mod_spdef" label="" size="xs" defaultvalue="0" hidecontrols="true" showsign="true" width="100%"></numberfield>
+    </div>
+
+    <div class="pta-stat-cell spd">
+      <div class="pta-stat-label spd">SPD</div>
+      <numberfield field="stat_speed" label="" size="xs" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+      <div class="pta-stat-label spd" style="margin-top: 2px;">Mod</div>
+      <numberfield field="mod_speed" label="" size="xs" defaultvalue="0" hidecontrols="true" showsign="true" width="100%"></numberfield>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SKILLS ═══ -->
+<div class="pta-label">✦ Skills ✦</div>
+<div class="pta-card">
+  <div style="display: flex; flex-direction: row; gap: 8px;">
+
+    <!-- LEFT COLUMN -->
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 3px;">
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_acrobatics" label="Acrobatics (SPD)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollAcro" size="xs" label="🎲" variant="outline" onclick="rollSkill('Acrobatics','acrobatics');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_athletics" label="Athletics (ATK)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollAthl" size="xs" label="🎲" variant="outline" onclick="rollSkill('Athletics','athletics');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_bluff" label="Bluff / Deception (SpDEF)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollBluff" size="xs" label="🎲" variant="outline" onclick="rollSkill('Bluff / Deception','bluff');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_concentration" label="Concentration (DEF)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollConc" size="xs" label="🎲" variant="outline" onclick="rollSkill('Concentration','concentration');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_constitution" label="Constitution (DEF)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollCons" size="xs" label="🎲" variant="outline" onclick="rollSkill('Constitution','constitution');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_diplomacy" label="Diplomacy / Persuasion (SpDEF)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollDipl" size="xs" label="🎲" variant="outline" onclick="rollSkill('Diplomacy / Persuasion','diplomacy');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_engineering" label="Engineering / Operation (SpATK)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollEng" size="xs" label="🎲" variant="outline" onclick="rollSkill('Engineering / Operation','engineering');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_history" label="History (SpATK)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollHist" size="xs" label="🎲" variant="outline" onclick="rollSkill('History','history');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_insight" label="Insight (SpDEF)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollInsi" size="xs" label="🎲" variant="outline" onclick="rollSkill('Insight','insight');"></button>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 3px;">
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_investigate" label="Investigate (SpATK)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollInvs" size="xs" label="🎲" variant="outline" onclick="rollSkill('Investigate','investigate');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_medicine" label="Medicine (SpATK)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollMed" size="xs" label="🎲" variant="outline" onclick="rollSkill('Medicine','medicine');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_nature" label="Nature (SpATK)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollNat" size="xs" label="🎲" variant="outline" onclick="rollSkill('Nature','nature');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_perception" label="Perception (SpDEF)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollPerc" size="xs" label="🎲" variant="outline" onclick="rollSkill('Perception','perception');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_perform" label="Perform (SpDEF)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollPerf" size="xs" label="🎲" variant="outline" onclick="rollSkill('Perform','perform');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_pkm_handling" label="Pokémon Handling (SpDEF)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollPkmH" size="xs" label="🎲" variant="outline" onclick="rollSkill('Pokémon Handling','pkm_handling');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_programming" label="Programming (SpATK)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollProg" size="xs" label="🎲" variant="outline" onclick="rollSkill('Programming','programming');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_sleight" label="Sleight of Hand (SPD)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollSlgt" size="xs" label="🎲" variant="outline" onclick="rollSkill('Sleight of Hand','sleight');"></button>
+      </div>
+
+      <div style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+        <numberfield field="skill_stealth" label="Stealth (SPD)" size="xs" defaultvalue="0" hidecontrols="true" width="60%"></numberfield>
+        <button field="rollStel" size="xs" label="🎲" variant="outline" onclick="rollSkill('Stealth','stealth');"></button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ ORIGIN FEATURE ═══ -->
+<div class="pta-label">✦ Origin Feature ✦</div>
+<div class="pta-card">
+  <stringfield field="origin_feature" label="" size="xs" multiline="true" maxrows="4" placeholder="Origin feature description..." width="100%"></stringfield>
+</div>
+
+<!-- ═══ CLASS FEATURES ═══ -->
+<div class="pta-label">✦ Class Features ✦</div>
+<div class="pta-card">
+  <stringfield field="class_features" label="" size="xs" multiline="true" maxrows="10" placeholder="Class features..." width="100%"></stringfield>
+</div>
+
+<!-- ═══ SKILL TALENTS ═══ -->
+<div class="pta-label">✦ Skill Talents ✦</div>
+<div class="pta-card">
+  <stringfield field="skill_talents" label="" size="xs" multiline="true" maxrows="4" placeholder="Skill talents..." width="100%"></stringfield>
+</div>
+
+<!-- ═══ OWNED POKÉMON + HONORS ═══ -->
+<div style="display: flex; flex-direction: row; gap: 8px;">
+  <div style="flex: 1;">
+    <div class="pta-label">✦ Owned Pokémon ✦</div>
+    <div class="pta-card">
+      <stringfield field="owned_pokemon" label="" size="xs" multiline="true" maxrows="6" placeholder="Your Pokémon party..." width="100%"></stringfield>
+    </div>
+  </div>
+  <div style="flex: 1;">
+    <div class="pta-label">✦ Honors ✦</div>
+    <div class="pta-card">
+      <stringfield field="honors" label="" size="xs" multiline="true" maxrows="6" placeholder="Badges, ribbons, achievements..." width="100%"></stringfield>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ INVENTORY ═══ -->
+<div class="pta-label">✦ Inventory ✦</div>
+<div class="pta-card">
+  <stringfield field="inventory" label="" size="xs" multiline="true" maxrows="8" placeholder="Items, Poké Balls, key items..." width="100%"></stringfield>
+</div>

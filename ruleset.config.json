@@ -1,0 +1,92 @@
+{
+  "name": "Pokemon Tabletop Adventures 3",
+  "description": "PTA3 ruleset for Realm VTT — full compendium with dynamic type filters",
+  "version": 1,
+  "records": [
+    {
+      "name": "Characters",
+      "type": "characters",
+      "minX": 650,
+      "minY": 900,
+      "tabs": [
+        { "name": "Main",  "file": "character-main.html" },
+        { "name": "Notes", "file": "character-notes.html" }
+      ],
+      "hideFromCompendium": false,
+      "isList": false,
+      "icon": "",
+      "filters": {}
+    },
+    {
+      "name": "NPCs",
+      "type": "npcs",
+      "minX": 600,
+      "minY": 780,
+      "tabs": [
+        { "name": "Main", "file": "npc-main.html" }
+      ],
+      "hideFromCompendium": false,
+      "isList": false,
+      "icon": "",
+      "filters": {}
+    },
+    {
+      "name": "Pokemon",
+      "type": "pokemon",
+      "minX": 620,
+      "minY": 820,
+      "tabs": [
+        { "name": "Stats", "file": "pokemon-main.html" }
+      ],
+      "hideFromCompendium": false,
+      "isList": false,
+      "icon": "",
+      "filters": {
+        "poke_type1": "dynamic",
+        "poke_type2": "dynamic",
+        "poke_stage": "dynamic",
+        "poke_size":  "dynamic"
+      }
+    },
+    {
+      "name": "Moves",
+      "type": "moves",
+      "minX": 480,
+      "minY": 340,
+      "tabs": [
+        { "name": "Main", "file": "moves-main.html" }
+      ],
+      "hideFromCompendium": false,
+      "isList": false,
+      "icon": "",
+      "filters": {
+        "move_type":     "dynamic",
+        "move_category": "dynamic"
+      }
+    },
+    {
+      "name": "Abilities",
+      "type": "abilities",
+      "minX": 480,
+      "minY": 300,
+      "tabs": [
+        { "name": "Main", "file": "abilities-main.html" }
+      ],
+      "hideFromCompendium": false,
+      "isList": false,
+      "icon": "",
+      "filters": {
+        "ability_category": "dynamic",
+        "ability_trigger":  "dynamic"
+      }
+    }
+  ],
+  "settings": {
+    "otherSettings": {
+      "commonScript": { "file": "common.js" }
+    },
+    "rollTypes": [
+      { "name": "system", "file": "rollhandlers/system.js" }
+    ]
+  }
+}

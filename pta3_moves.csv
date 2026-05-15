@@ -1,0 +1,88 @@
+recordType,name,move_type,move_category,move_range,move_range_ft,move_uses,move_damage_dice,move_accuracy_mod,move_keywords,move_effect,move_description
+moves,Tackle,Normal,Attack,Melee,,3/day,2d6,,,"Target takes damage.",A basic full-body charge into the target.
+moves,Scratch,Normal,Attack,Melee,,3/day,2d6,,,"Target takes damage.",Sharp claws raked across the target.
+moves,Pound,Normal,Attack,Melee,,3/day,2d6,,,"Target takes damage.",Strikes the target with a long tail or limb.
+moves,Quick Attack,Normal,Attack,Melee,,3/day,2d6,,Priority,"Target takes damage. Has Priority.",A strike performed with blinding speed — acts before most other moves.
+moves,Hyper Beam,Normal,Special Attack,Ranged,30ft,1/day,5d12,,,"You cannot act on your next turn after using this move.",A powerful beam of energy that requires rest to recharge.
+moves,Body Slam,Normal,Attack,Melee,,3/day,3d10,,,"On hit if you got 15 or higher on Accuracy Check the target is Paralyzed.",A full-body drop that can paralyze targets.
+moves,Hyper Voice,Normal,Special Attack,Ranged,30ft 10ft blast,1/day,4d10,,,"Target takes damage.",A powerful sound wave blasted at all enemies in range.
+moves,Double Slap,Normal,Attack,Melee,,3/day,2d4 up to 3 times,,Scatter,"Make up to 3 separate Accuracy Checks dealing 2d4 on each hit.",Rapidly slaps the target multiple times.
+moves,Growl,Normal,Effect,Ranged,10ft,3/day,,,,"Target has -1 Attack until end of their next turn.",A cute sound that lowers the target's fighting spirit.
+moves,Tail Whip,Normal,Effect,Ranged,10ft,3/day,,,,"Target has -1 Defense until end of their next turn.",A friendly tail wag that leaves the target off guard.
+moves,Leer,Normal,Effect,Ranged,10ft,3/day,,,,"Target has -1 Defense until end of their next turn.",A sharp intimidating glare that lowers the target's guard.
+moves,Sing,Normal,Effect,Ranged,15ft burst,1/day,,,,Targets are Asleep.,A soothing melody that puts nearby foes to sleep.
+moves,Yawn,Normal,Effect,Ranged,10ft,1/day,,,,"Target falls Asleep at the end of their next turn.",A contagious yawn that makes the target drowsy.
+moves,Harden,Normal,Effect,Self,,3/day,,,,"Your Defense is +2 until your next turn.",The user stiffens its body to raise its Defense.
+moves,Protect,Normal,Effect,Self,,1/day,,,,"Until your next turn all attacks targeting you automatically miss.",Creates a barrier that blocks all incoming attacks for one turn.
+moves,Swift,Normal,Special Attack,Ranged,20ft,3/day,3d8,,,"Swift cannot miss.",Star-shaped rays that never miss the target.
+moves,Pay Day,Normal,Attack,Ranged,15ft,3/day,2d6,,Scatter,"Scatter up to 3 attacks. Coins are scattered after each use.",Hurls coins at the target — scatter up to 3 separate attacks.
+moves,Fake Out,Normal,Attack,Melee,,1/day,2d6,,Priority,"Has Priority. Target is Stunned. Can only be used on the first round of combat.",A startling move that only works at the very start of a fight.
+moves,Metronome,Normal,Effect,Self,,3/day,,,,"Roll 1d6 and use the corresponding move from any move list.",Waggles a finger unpredictably to call a random move.
+moves,Ember,Fire,Special Attack,Ranged,10ft,3/day,2d6,,,"On hit if you got 16 or higher on Accuracy Check the target is Burned.",Small flames launched at the target — may cause a burn.
+moves,Flamethrower,Fire,Special Attack,Ranged,20ft,3/day,4d10,,,"On hit if you got 15 or higher on Accuracy Check the target is Burned.",A powerful stream of fire — high chance of Burning on a strong hit.
+moves,Fire Blast,Fire,Special Attack,Ranged,25ft 10ft blast,1/day,5d12,,,"Target takes damage.",An enormous pillar of fire that scorches everything in its path.
+moves,Flare Blitz,Fire,Attack,Melee,,1/day,5d12,,,"You take 1d12 recoil damage.",A full-speed charge wrapped in flames — deals heavy recoil.
+moves,Lava Plume,Fire,Special Attack,Ranged,10ft burst,3/day,3d10,,,"On hit if you got 14 or higher on Accuracy Check the target is Burned.",A burst of volcanic heat that may Burn all nearby targets.
+moves,Fire Fang,Fire,Attack,Melee,,3/day,2d10,,,"On hit if you got 15 or higher on Accuracy Check the target is Burned.",A biting attack with blazing fangs — may cause a Burn.
+moves,Thunderbolt,Electric,Special Attack,Ranged,20ft,3/day,4d10,,,"On hit if you got 15 or higher on Accuracy Check the target is Paralyzed.",A reliable jolt of electricity with a solid chance of Paralysis.
+moves,Thunder,Electric,Special Attack,Ranged,30ft 5ft blast,1/day,5d12,-2,,"Has -2 on Accuracy Check unless it is Raining. On hit if you got 14 or higher on Accuracy Check the targets are Paralyzed.",A massive thunderbolt — hard to aim but devastating in Rain.
+moves,Shock Wave,Electric,Special Attack,Ranged,20ft,3/day,3d8,,,"You cannot miss targets with less than 15 Special Defense.",A fast electric strike that cannot miss weaker targets.
+moves,Volt Tackle,Electric,Attack,Melee,,1/day,5d12,,,"You take 1d10 recoil damage.",A high-speed charge crackling with electricity — heavy recoil.
+moves,Thunder Wave,Electric,Effect,Ranged,20ft,3/day,,,,"Target is Paralyzed.",A weak jolt of electricity that reliably Paralyzes the target.
+moves,Water Gun,Water,Special Attack,Ranged,15ft,3/day,2d6,,,"Target takes damage.",A jet of water shot at the target.
+moves,Hydro Pump,Water,Special Attack,Ranged,25ft,1/day,5d12,,,"Target takes damage.",A violent torrent of water blasted at the target.
+moves,Water Pulse,Water,Special Attack,Ranged,20ft,3/day,3d8,,,"On hit if you got 16 or higher on Accuracy Check the target is Confused.",Rings of water that may confuse the target on a strong hit.
+moves,Aqua Ring,Water,Effect,Self,,3/day,,,,"You recover 1d8 HP at the start of each of your turns for 5 rounds.",Wraps the user in a veil of water that slowly restores HP.
+moves,Bubble,Water,Special Attack,Ranged,10ft burst,3/day,2d6,,,"Target takes damage.",Bursts bubbles at all nearby targets.
+moves,Razor Leaf,Grass,Attack,Ranged,20ft,3/day,2d10,,,"On hit if you got 16 or higher on Accuracy Check the target is Stunned.",Sharp leaves launched with high critical-hit potential.
+moves,Leech Seed,Grass,Effect,Ranged,15ft,3/day,,,,"Target is seeded for 5 rounds. A seeded target loses 1d6 HP at the start of each of their turns and you regain that much HP.",Plants a seed on the target that drains HP each round.
+moves,Petal Dance,Grass,Special Attack,Melee,,3/day,4d10,,,"Target takes damage.",A spinning dance scattering petals at the target.
+moves,Solar Beam,Grass,Special Attack,Ranged,30ft,1/day,5d12,,,"Solar Beam is a two-turn move. On the first turn aim. On the second turn fire for 5d12 damage.",Absorbs sunlight for a turn then blasts it as a massive beam.
+moves,Sleep Powder,Grass,Effect,Ranged,10ft burst,1/day,,,,"Targets are Asleep.",Scatters a cloud of sleep-inducing powder over nearby targets.
+moves,Poison Powder,Poison,Effect,Ranged,10ft,3/day,,,,"Target is Poisoned.",Releases a toxic dust that Poisons the target.
+moves,Sludge Bomb,Poison,Special Attack,Ranged,20ft,3/day,3d10,,,"On hit if you got 14 or higher on Accuracy Check the target is Poisoned.",Hurls a glob of toxic sludge — may Poison on a solid hit.
+moves,Karate Chop,Fighting,Attack,Melee,,3/day,2d8,,,"Deals an extra 2d8 damage on a Critical Hit.",A precise chop with high critical-hit potential.
+moves,Low Kick,Fighting,Attack,Melee,,3/day,1d8,,,"Deals more damage to heavier targets. For each weight category above Light add 1d8 damage.",A tripping kick that deals more damage the heavier the target.
+moves,Dynamic Punch,Fighting,Attack,Melee,,1/day,5d12,,,"The target is Confused.",A brutal punch that always Confuses the target on a hit.
+moves,Cross Chop,Fighting,Attack,Melee,,1/day,5d10,,,"Deals an extra 3d10 on a Critical Hit.",A powerful two-armed chop with high critical-hit potential.
+moves,Submission,Fighting,Attack,Melee,,3/day,3d10,,,"You take 1d8 recoil damage.",A grappling move that deals recoil damage to the user.
+moves,Bullet Punch,Steel,Attack,Melee,,3/day,2d8,,Priority,"Has Priority.",A punching move with metallic fists that strikes first.
+moves,Iron Tail,Steel,Attack,Melee,,3/day,3d10,,,"Target takes damage.",A strike with a tail hardened like iron.
+moves,Heavy Slam,Steel,Attack,Melee,,3/day,2d12,,,"Deals more damage to lighter targets. For each weight category below Superweight the target is add 1d12 damage.",A body-weight crash — more devastating against lighter targets.
+moves,Sand Attack,Ground,Effect,Ranged,10ft,3/day,,,,"Target has -2 on all Accuracy Checks until end of their next turn.",Flings sand into the target's eyes to reduce their accuracy.
+moves,Earthquake,Ground,Attack,Ranged,30ft burst,1/day,3d12,,,"Target takes damage.",A powerful tremor that shakes everything in range.
+moves,Shadow Ball,Ghost,Special Attack,Ranged,20ft,3/day,4d10,,,"On hit if you got 15 or higher on Accuracy Check the target has -1 Special Defense.",A ball of negative energy that may lower the target's Sp. Def.
+moves,Dream Eater,Psychic,Special Attack,Melee,,3/day,4d10,,,"Dream Eater can only target Asleep targets. You regain HP equal to half the damage dealt.",Feeds on the dreams of a sleeping target — restores the user's HP.
+moves,Hypnosis,Psychic,Effect,Ranged,15ft,1/day,,,,"Target is Asleep.",Projects a hypnotic gaze that puts the target to sleep.
+moves,Psychic,Psychic,Special Attack,Ranged,20ft,3/day,4d10,,,"On hit if you got 15 or higher on Accuracy Check the target has -1 Special Defense.",A telekinetic attack that may weaken the target's Sp. Def.
+moves,Psybeam,Psychic,Special Attack,Ranged,20ft,3/day,3d8,,,"On hit if you got 16 or higher on Accuracy Check the target is Confused.",A beam of psychic energy that may Confuse the target.
+moves,Psystrike,Psychic,Special Attack,Ranged,30ft,1/day,5d12,,,"Psystrike targets the opponent's Defense instead of their Special Defense.",Uses psychic power to strike the target's physical defenses.
+moves,Ancient Power,Rock,Special Attack,Ranged,10ft burst,3/day,3d10,,,"Target takes damage.",A primordial power said to contain the energy of ancient ages.
+moves,Power Gem,Rock,Special Attack,Ranged,15ft,3/day,3d10,,,"Target takes damage.",Fires a beam of gems that strikes with radiant energy.
+moves,Gust,Flying,Special Attack,Ranged,20ft,3/day,2d10,,,"Target takes damage.",Stirs up a gust of wind to strike the target.
+moves,Air Slash,Flying,Special Attack,Ranged,15ft,1/day,3d12,-1,,"Has -1 during Accuracy Check. On hit if you got 14 or higher on Accuracy Check the target is Stunned.",Blades of compressed air — difficult to aim but may Stun on a solid hit.
+moves,Silver Wind,Bug,Special Attack,Ranged,20ft,1/day,3d10,,,"Target takes damage.",A powdery silver wind launched from the wings.
+moves,String Shot,Bug,Effect,Ranged,10ft,3/day,,,,"Target's Speed is -2 until end of their next turn.",Shoots sticky thread that slows down the target.
+moves,Pin Missile,Bug,Attack,Ranged,20ft,1/day,1d8 up to 5 times,,Scatter,"Make up to 5 separate Accuracy Checks dealing 1d8 on each hit.",Sharp pins launched in rapid succession.
+moves,Night Slash,Dark,Attack,Melee,,3/day,3d8,,,"On hit if you got 18 or higher on Accuracy Check deal an extra 2d8 damage.",Strikes with exceptional critical-hit potential in the dark.
+moves,Bite,Dark,Attack,Melee,,3/day,2d10,,,"Target takes damage.",A snapping bite — reliable and straightforward.
+moves,Dark Pulse,Dark,Special Attack,Ranged,10ft,3/day,3d10,,,"On hit if you got 16 or higher on Accuracy Check the target is Stunned.",A wave of dark energy that may Stun the target.
+moves,Dragon Claw,Dragon,Attack,Melee,,3/day,3d10,,,"Target takes damage.",Slashes the target with sharp draconic claws.
+moves,Dragon Rage,Dragon,Special Attack,Ranged,20ft,1/day,3d10,,,"Target takes damage.",A blast of draconic power.
+moves,Outrage,Dragon,Attack,Melee,,1/day,5d12,,,"Outrage is a two-turn move. On each turn move to the closest character within 25 ft and roll Accuracy Check and damage. After your second turn you are Confused.",A rampage of draconic fury that Confuses the user afterward.
+moves,Slash,Normal,Attack,Melee,,3/day,3d8,,,"Target takes damage.",A slicing attack with sharp claws or a cutting appendage.
+moves,Rapid Spin,Normal,Attack,Melee,,3/day,2d8,,,"Target takes damage.",Spins rapidly to strike and remove hazards.
+moves,Acid Armor,Poison,Effect,Self,,1/day,,,,"Your Defense is +3 until end of combat.",Dissolves the user's body into liquid to sharply boost Defense.
+moves,Agility,Psychic,Effect,Self,,1/day,,,,"Your Speed is +4 until end of combat.",Clears the user's mind to sharply boost Speed.
+moves,Aura Sphere,Fighting,Special Attack,Ranged,25ft,3/day,4d10,,,"Aura Sphere cannot miss.",A ball of pure fighting energy that never misses.
+moves,Ice Beam,Ice,Special Attack,Ranged,25ft,3/day,4d10,,,"On hit if you got 15 or higher on Accuracy Check the target is Frozen.",A freezing beam — may Freeze the target on a strong hit.
+moves,Transform,Normal,Effect,Self,,1/day,,,,"You transform into the target copying all of their stats moves and types for 5 rounds.",Transforms the user into a copy of the target.
+moves,Thrash,Normal,Attack,Melee,,1/day,5d12,,,"Thrash is a two-turn move. On each turn move to the closest character within 25 ft and roll Accuracy Check and damage. After your second turn you are Confused.",A violent rampaging attack that Confuses the user afterward.
+moves,Hurricane,Flying,Special Attack,Ranged,25ft 10ft blast,1/day,5d12,-2,,"Has -2 during Accuracy Check unless it is Raining. On hit if you got 14 or higher on Accuracy Check the targets are Confused.",A massive twisting storm — hard to aim but Confuses targets in Rain.
+moves,Volt Absorb,Electric,Effect,Self,,passive,,,,Passive: When you are hit by an Electric-type attack halve the damage then you regain that much HP instead.,Absorbs incoming electric attacks to restore HP.
+moves,Recover,Normal,Effect,Self,,1/day,,,,"Restore HP equal to half your max HP.",Restores up to half the user's maximum HP.
+moves,Extreme Speed,Normal,Attack,Melee,,1/day,3d10,,Priority,"Has high Priority.",A full-speed tackle that almost always moves first.
+moves,Skull Bash,Normal,Attack,Melee,,1/day,5d12,,,"Target takes damage.",A powerful headbutt launched after charging up.
+moves,Land's Wrath,Ground,Attack,Ranged,40ft,3/day,5d12,,Legendary,"Legendary move.",Commands the land itself to strike down the target.
+moves,Thousand Waves,Ground,Attack,Ranged,40ft 10ft wave,3/day,3d12,,Legendary,"On hit all targets are bound to the ground for 10 mins. Ignores Ground-type immunities.",A wave of earth that binds targets to the ground — ignores immunity.
+moves,Core Enforcer,Dragon,Special Attack,Ranged,40ft 10ft blast,3/day,3d12,,Legendary,"If any targets acted before you this turn they lose all ability passives for 10 mins.",Seals away the abilities of targets who have already moved.
