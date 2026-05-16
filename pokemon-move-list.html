@@ -1,0 +1,72 @@
+<style>
+  .pm-row {
+    background: rgba(13,10,5,0.85);
+    border: 1px solid rgba(200,40,40,0.2);
+    border-left: 3px solid #c82828;
+    border-radius: 2px;
+    margin-bottom: 2px;
+    padding: 4px;
+  }
+  .pm-type-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  }
+</style>
+
+<script>
+  var PM_TYPE_COLORS = {
+    "Normal":   "#a8a878", "Fire":    "#f08030", "Water":   "#6890f0",
+    "Grass":    "#78c850", "Electric":"#f8d030", "Ice":     "#98d8d8",
+    "Fighting": "#c03028", "Poison":  "#a040a0", "Ground":  "#e0c068",
+    "Flying":   "#a890f0", "Psychic": "#f85888", "Bug":     "#a8b820",
+    "Rock":     "#b8a038", "Ghost":   "#705898", "Dragon":  "#7038f8",
+    "Dark":     "#705848", "Steel":   "#b8b8d0", "Fairy":   "#ee99ac"
+  };
+
+  // Roll this move using parent record's attack mod
+  function rollThisMove() {
+    var d = (record && record.data) || {};
+    var moveName  = record.name || "Move";
+    var moveType  = d.move_type || "";
+    var moveCat   = d.move_category || "";
+    var dmgDice   = d.move_damage || "";
+
+    // Walk up to parent Pokémon to grab modifiers and types
+    // Note: list items don't have access to parent here; pass via parent script if needed.
+    // For now, the parent's pokemon-main.html will own the roll buttons.
+    api.promptRoll(
+      moveName + " (Accuracy Check)",
+      "1d20",
+      [],
+      {
+        rollType: "accuracy",
+        moveName: moveName,
+        moveType: moveType,
+        moveCategory: moveCat,
+        damageRoll: dmgDice
+      },
+      "system"
+    );
+  }
+</script>
+
+<div class="pm-row">
+  <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
+    <namefield field="name" label="" bold="true" size="xs" width="35%" placeholder="Move name..."></namefield>
+    <stringfield field="move_type" label="" size="xs" width="18%" placeholder="Type"></stringfield>
+    <stringfield field="move_category" label="" size="xs" width="22%" placeholder="Category"></stringfield>
+    <stringfield field="move_damage" label="" size="xs" width="15%" placeholder="3d10"></stringfield>
+    <button field="rollBtn" size="xs" label="🎲" variant="outline" onclick="rollThisMove();"></button>
+  </div>
+  <div style="display: flex; flex-direction: row; gap: 6px; margin-top: 3px;">
+    <stringfield field="move_range" label="" size="xs" width="30%" placeholder="Range"></stringfield>
+    <stringfield field="move_uses" label="" size="xs" width="20%" placeholder="Uses"></stringfield>
+    <stringfield field="move_effect" label="" size="xs" multiline="true" maxrows="2" width="50%" placeholder="Effect..."></stringfield>
+  </div>
+</div>

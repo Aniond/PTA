@@ -1,15 +1,247 @@
-<div style="padding: 8px;">
-  <namefield field="name" label="Move Name" size="lg" bold="true"></namefield>
-  <stringfield field="move_type" label="Type"></stringfield>
-  <stringfield field="move_category" label="Category"></stringfield>
-  <stringfield field="move_range" label="Range"></stringfield>
-  <stringfield field="move_range_ft" label="Range (ft)"></stringfield>
-  <stringfield field="move_uses" label="Uses Per Day"></stringfield>
-  <stringfield field="move_damage_dice" label="Damage Dice"></stringfield>
-  <stringfield field="move_accuracy_mod" label="Accuracy Modifier"></stringfield>
-  <stringfield field="move_keywords" label="Keywords"></stringfield>
-  <divider label="Effect" orientation="horizontal"></divider>
-  <stringfield field="move_effect" label="Effect" multiline="true" maxrows="4"></stringfield>
-  <divider label="Description" orientation="horizontal"></divider>
-  <stringfield field="move_description" label="Description" multiline="true" maxrows="4"></stringfield>
+<style>
+  .mv-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #c88080;
+    text-transform: uppercase;
+    font-family: Georgia, serif;
+    text-align: center;
+    margin: 8px 0 4px 0;
+  }
+  .mv-card {
+    background: rgba(13,10,5,0.7);
+    border: 1px solid rgba(200,40,40,0.25);
+    border-top: 2px solid rgba(200,40,40,0.55);
+    border-radius: 3px;
+    padding: 8px;
+    margin-bottom: 4px;
+  }
+  .mv-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 4px;
+    background: rgba(13,10,5,0.8);
+    border: 2px solid rgba(200,40,40,0.4);
+    margin-bottom: 6px;
+  }
+  .mv-stat-cell {
+    background: rgba(200,40,40,0.08);
+    border: 1px solid rgba(200,40,40,0.3);
+    border-radius: 3px;
+    padding: 6px;
+    text-align: center;
+    flex: 1;
+  }
+  .mv-stat-lbl {
+    font-size: 9px;
+    color: #c88080;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+    font-weight: 600;
+  }
+  .mv-stat-val {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e8dfc8;
+    font-family: Georgia, serif;
+  }
+  .mv-tag {
+    display: inline-block;
+    background: rgba(200,40,40,0.2);
+    border: 1px solid rgba(200,40,40,0.5);
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-size: 10px;
+    color: #e8dfc8;
+    margin-right: 4px;
+  }
+</style>
+
+<script>
+  var MOVE_TYPE_COLORS = {
+    "Normal":   "#a8a878", "Fire":    "#f08030", "Water":   "#6890f0",
+    "Grass":    "#78c850", "Electric":"#f8d030", "Ice":     "#98d8d8",
+    "Fighting": "#c03028", "Poison":  "#a040a0", "Ground":  "#e0c068",
+    "Flying":   "#a890f0", "Psychic": "#f85888", "Bug":     "#a8b820",
+    "Rock":     "#b8a038", "Ghost":   "#705898", "Dragon":  "#7038f8",
+    "Dark":     "#705848", "Steel":   "#b8b8d0", "Fairy":   "#ee99ac"
+  };
+
+  var CATEGORY_COLORS = {
+    "Attack":          "#d83838",
+    "Special Attack":  "#2858c8",
+    "Effect":          "#9b59b6"
+  };
+
+  // Draw the move banner with type badge + category badge
+  function drawMoveBanner() {
+    var c = api.getCanvas("moveBanner");
+    if (!c) return;
+    var W = c.width, H = c.height;
+    var d = (record && record.data) || {};
+    var moveType = d.move_type || "Normal";
+    var category = d.move_category || "Attack";
+    var moveName = (record && record.name) || "Move";
+
+    var typeCol = MOVE_TYPE_COLORS[moveType] || "#888";
+    var catCol = CATEGORY_COLORS[category] || "#888";
+
+    c.clearRect(0, 0, W, H);
+
+    // Background gradient using move type color
+    var grad = c.createLinearGradient(0, 0, W, 0, [
+      [0,   typeCol + "ff"],
+      [0.5, typeCol + "cc"],
+      [1,   "rgba(13,10,5,0.85)"]
+    ]);
+    c.setFillStyle(grad || typeCol);
+    c.fillRect(0, 0, W, H);
+
+    // Subtle border
+    c.setStrokeStyle("rgba(0,0,0,0.5)");
+    c.setLineWidth(2);
+    c.strokeRect(1, 1, W-2, H-2);
+
+    // Move name (left aligned, large)
+    c.setFont("700 22px Georgia, serif");
+    c.setTextAlign("left");
+    c.setTextBaseline("middle");
+    c.setShadowColor("rgba(0,0,0,0.7)");
+    c.setShadowBlur(3);
+    c.setFillStyle("#ffffff");
+    c.fillText(moveName, 16, H / 2 - 6);
+    c.setShadowBlur(0);
+
+    // Type + category pill row
+    c.setFont("700 10px sans-serif");
+    var pillY = H / 2 + 12;
+
+    // Type pill
+    var typeW = c.measureText(moveType).width + 16;
+    c.beginPath();
+    c.roundRect(16, pillY - 8, typeW, 16, 8);
+    c.setFillStyle("rgba(0,0,0,0.5)");
+    c.fill();
+    c.setStrokeStyle("rgba(255,255,255,0.4)");
+    c.setLineWidth(1);
+    c.stroke();
+    c.setFillStyle("#ffffff");
+    c.setTextAlign("center");
+    c.setTextBaseline("middle");
+    c.fillText(moveType, 16 + typeW/2, pillY);
+
+    // Category pill
+    var catW = c.measureText(category).width + 16;
+    var catX = 16 + typeW + 6;
+    c.beginPath();
+    c.roundRect(catX, pillY - 8, catW, 16, 8);
+    c.setFillStyle(catCol + "cc");
+    c.fill();
+    c.setStrokeStyle("rgba(255,255,255,0.4)");
+    c.setLineWidth(1);
+    c.stroke();
+    c.setFillStyle("#ffffff");
+    c.fillText(category, catX + catW/2, pillY);
+
+    // Pokéball decoration in top-right
+    var ballX = W - 30, ballY = H / 2 - 5;
+    c.beginPath();
+    c.arc(ballX, ballY, 14, 0, Math.PI * 2);
+    c.setFillStyle("#ffffff");
+    c.fill();
+    c.beginPath();
+    c.arc(ballX, ballY, 14, 0, Math.PI);
+    c.setFillStyle("#c82828");
+    c.fill();
+    c.setStrokeStyle("#1a1a1a");
+    c.setLineWidth(2);
+    c.beginPath();
+    c.arc(ballX, ballY, 14, 0, Math.PI * 2);
+    c.stroke();
+    c.beginPath();
+    c.moveTo(ballX - 14, ballY);
+    c.lineTo(ballX + 14, ballY);
+    c.stroke();
+    c.beginPath();
+    c.arc(ballX, ballY, 4, 0, Math.PI * 2);
+    c.setFillStyle("#ffffff");
+    c.fill();
+    c.setStrokeStyle("#1a1a1a");
+    c.stroke();
+  }
+
+  function onLoad() { drawMoveBanner(); }
+  function onRecordChange() { drawMoveBanner(); }
+</script>
+
+<!-- ═══ MOVE BANNER ═══ -->
+<canvas field="moveBanner" width="600" height="80"
+  style="width: 100%; height: 80px; display: block; border-radius: 4px; margin-bottom: 8px;"
+  onload="drawMoveBanner();"
+  onrecordchange="drawMoveBanner();">
+</canvas>
+
+<!-- ═══ NAME FIELD (editable, hidden visually since shown in banner) ═══ -->
+<namefield field="name" label="Move Name" size="sm" placeholder="e.g. Flamethrower..."></namefield>
+
+<!-- ═══ COMBAT STATS ═══ -->
+<div class="mv-label">✦ Move Properties ✦</div>
+<div class="mv-card">
+  <div style="display: flex; flex-direction: row; gap: 4px;">
+    <div class="mv-stat-cell">
+      <div class="mv-stat-lbl">Type</div>
+      <stringfield field="move_type" label="" size="xs" width="100%" placeholder="Fire..." onchange="drawMoveBanner();"></stringfield>
+    </div>
+    <div class="mv-stat-cell">
+      <div class="mv-stat-lbl">Category</div>
+      <stringfield field="move_category" label="" size="xs" width="100%" placeholder="Attack..." onchange="drawMoveBanner();"></stringfield>
+    </div>
+    <div class="mv-stat-cell">
+      <div class="mv-stat-lbl">Uses</div>
+      <stringfield field="move_uses" label="" size="xs" width="100%" placeholder="3/day"></stringfield>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: row; gap: 4px; margin-top: 6px;">
+    <div class="mv-stat-cell">
+      <div class="mv-stat-lbl">Range</div>
+      <stringfield field="move_range" label="" size="xs" width="100%" placeholder="Melee / Ranged / Self"></stringfield>
+    </div>
+    <div class="mv-stat-cell">
+      <div class="mv-stat-lbl">Range (ft)</div>
+      <stringfield field="move_range_ft" label="" size="xs" width="100%" placeholder="20ft, 5ft blast"></stringfield>
+    </div>
+    <div class="mv-stat-cell">
+      <div class="mv-stat-lbl">Damage Dice</div>
+      <stringfield field="move_damage_dice" label="" size="xs" width="100%" placeholder="3d10"></stringfield>
+    </div>
+    <div class="mv-stat-cell">
+      <div class="mv-stat-lbl">Accuracy Mod</div>
+      <stringfield field="move_accuracy_mod" label="" size="xs" width="100%" placeholder="0, -2..."></stringfield>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ KEYWORDS ═══ -->
+<div class="mv-label">✦ Keywords ✦</div>
+<div class="mv-card">
+  <stringfield field="move_keywords" label="" size="xs" width="100%" placeholder="Priority, Scatter, Beam, Recharge..."></stringfield>
+</div>
+
+<!-- ═══ EFFECT ═══ -->
+<div class="mv-label">✦ Effect ✦</div>
+<div class="mv-card">
+  <stringfield field="move_effect" label="" size="xs" multiline="true" maxrows="6" width="100%"
+    placeholder="On hit, the target is Burned..."></stringfield>
+</div>
+
+<!-- ═══ DESCRIPTION ═══ -->
+<div class="mv-label">✦ Flavor Description ✦</div>
+<div class="mv-card">
+  <stringfield field="move_description" label="" size="xs" multiline="true" maxrows="4" width="100%"
+    placeholder="A roaring blast of flame..."></stringfield>
 </div>

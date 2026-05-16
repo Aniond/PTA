@@ -1,0 +1,45 @@
+# ─── Node / npm ───────────────────────────────────────────────
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# ─── Build artifacts ──────────────────────────────────────────
+dist/
+build/
+*.log
+
+# ─── OS junk ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Editor / IDE ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── Sensitive: batch files contain passwords ─────────────────
+# Do NOT commit anything that has credentials in plaintext
+*.bat
+*.cmd
+.env
+.env.local
+*.secret
+local.config.json
+
+# ─── Large reference files (keep local only) ──────────────────
+# These PDFs aren't needed in the repo — data is already in CSVs
+PTA3Pokedex*.pdf
+PTA3GameMastersGuide*.pdf
+PTA3GameMastersScreen*.pdf
+PTA3CharacterSheetsPrinterFriendly.pdf
+
+# ─── Compiler temp / cache ────────────────────────────────────
+.cache/
+tmp/
+
+# ─── Local-only helper scripts ────────────────────────────────
+get_campaign_id.js

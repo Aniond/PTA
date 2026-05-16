@@ -34,7 +34,7 @@
       "name": "Pokemon",
       "type": "pokemon",
       "minX": 620,
-      "minY": 820,
+      "minY": 1050,
       "tabs": [
         { "name": "Stats", "file": "pokemon-main.html" }
       ],
@@ -47,6 +47,25 @@
         "poke_stage": "dynamic",
         "poke_size":  "dynamic"
       }
+    },
+    {
+      "name": "Pokemon Move",
+      "type": "pokemon_move",
+      "minX": 400,
+      "minY": 300,
+      "tabs": [
+        { "name": "Main", "file": "pokemon-move-list.html" }
+      ],
+      "hideFromCompendium": true,
+      "isList": true,
+      "singleRow": false,
+      "showAddButton": true,
+      "showDeleteButton": true,
+      "addButtonText": "Add Move",
+      "newItemName": "New Move",
+      "emptyListText": "No moves yet. Drag from compendium to add.",
+      "disableDrop": false,
+      "allowedListTypes": ["moves"]
     },
     {
       "name": "Moves",

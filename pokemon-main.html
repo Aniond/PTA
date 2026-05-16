@@ -41,22 +41,13 @@
   .pkm-stat-lbl.spatk { color: #80a0e8; }
   .pkm-stat-lbl.spdef { color: #98d8a0; }
   .pkm-stat-lbl.spd   { color: #e8b0d0; }
-  .type-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    margin-right: 4px;
-    color: #fff;
-    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  .autofill-card {
+    background: linear-gradient(90deg, rgba(42,74,158,0.15) 0%, rgba(200,40,40,0.1) 100%);
+    border: 1px solid rgba(255,203,5,0.3);
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
   }
-  .move-row {
-    border-bottom: 1px solid rgba(200,40,40,0.12);
-    padding: 4px 0;
-  }
-  .move-row:last-child { border-bottom: none; }
 </style>
 
 <script>
@@ -69,32 +60,12 @@
     "Dark":     "#705848", "Steel":   "#b8b8d0", "Fairy":   "#ee99ac"
   };
 
-  function rollMove(moveName, atkMod, dmgDice) {
-    const d = (record && record.data) || {};
-    const mod = parseInt(d[atkMod] || 0, 10);
-    const pkName = record.name || "Pokemon";
-    const sign = mod >= 0 ? "+" : "";
-    api.promptRoll(
-      `${pkName} — ${moveName} (Accuracy Check)`,
-      `1d20${sign}${mod}`,
-      [],
-      {
-        rollType: "accuracy",
-        moveName: moveName,
-        actorName: pkName,
-        damageRoll: dmgDice,
-        recordId: record._id
-      },
-      "system"
-    );
-  }
+  var TYPE_NAMES = [
+    "Normal","Fire","Water","Grass","Electric","Ice","Fighting","Poison",
+    "Ground","Flying","Psychic","Bug","Rock","Ghost","Dragon","Dark","Steel","Fairy"
+  ];
 
-  function getTypeBadgeHTML(type) {
-    if (!type) return "";
-    var col = TYPE_COLORS[type] || "#666";
-    return '<span class="type-badge" style="background:' + col + ';">' + type + '</span>';
-  }
-
+  // ─── TYPE BADGE CANVAS ─────────────────────────────────────────
   function drawTypeCanvas() {
     var c = api.getCanvas("typeCanvas");
     if (!c) return;
@@ -126,13 +97,247 @@
     drawBadge(t2, x);
   }
 
-  function onLoad() {
-    drawTypeCanvas();
+  // ─── LOAD FROM POKÉDEX (recordselectlist) ──────────────────────
+  // recordselectlist passes selections as an array of record objects (or a single record)
+  function onPokedexRowSelected(value) {
+    if (!value) return;
+
+    // Extract the picked record from various possible shapes
+    var picked = null;
+    if (Array.isArray(value)) {
+      picked = value[value.length - 1]; // last selected
+    } else if (typeof value === "object") {
+      picked = value;
+    } else if (typeof value === "string") {
+      // It's an ID string — fetch via getRecord
+      loadPokemonRecord(value);
+      return;
+    }
+
+    if (!picked) return;
+
+    // If we have the full record already, use it directly (faster path)
+    if (picked.data) {
+      handleLoadedRecord(picked);
+      return;
+    }
+
+    // Otherwise extract an ID and load via getRecord
+    var id = picked._id || picked.id || picked.value;
+    if (id) {
+      loadPokemonRecord(id);
+    } else {
+      api.sendMessage("⚠️ Couldn't extract record from selection.", undefined, [], []);
+    }
   }
 
-  function onRecordChanged(event) {
-    drawTypeCanvas();
+  function loadPokemonRecord(pokemonId) {
+    api.getRecord("pokemon", pokemonId, function(srcRec) {
+      if (!srcRec) {
+        api.sendMessage("⚠️ Couldn't load that Pokémon record.", undefined, [], []);
+        return;
+      }
+      handleLoadedRecord(srcRec);
+    });
   }
+
+  function handleLoadedRecord(srcRec) {
+    if (!srcRec.data) {
+      api.sendMessage("⚠️ Record loaded but contains no data.", undefined, [], []);
+      return;
+    }
+    if (srcRec._id === record._id) {
+      api.sendMessage("⚠️ Can't load Pokédex data from this same record.", undefined, [], []);
+      return;
+    }
+    var d = (record && record.data) || {};
+    var hasExisting = d.poke_hp || d.poke_attack;
+    if (hasExisting) {
+      api.showConfirm(
+        "Overwrite Current Stats?",
+        "Replace current stats with **" + (srcRec.name || "Pokémon") + "** Pokédex data? " +
+        "(Nickname, gender, and held item will be preserved. Moves will be replaced.)",
+        "Overwrite", "Cancel",
+        function() { applyPokedexData(srcRec); }
+      );
+    } else {
+      applyPokedexData(srcRec);
+    }
+  }
+
+  function applyPokedexData(srcRec) {
+    var s = srcRec.data || {};
+    var srcName = srcRec.name || "Pokémon";
+
+    var preserved = {
+      nickname: (record.data && record.data.poke_nickname) || "",
+      gender:   (record.data && record.data.poke_gender)   || "",
+      held:     (record.data && record.data.held_item)     || ""
+    };
+
+    // Build the moves list (proper list-item structure per Sean's guidance)
+    var movesList = buildMovesList(s.poke_moves || "");
+
+    var updates = {
+      "name": srcName,
+      "data.poke_type1":    s.poke_type1    || "",
+      "data.poke_type2":    s.poke_type2    || "",
+      "data.poke_stage":    s.poke_stage    || "",
+      "data.poke_size":     s.poke_size     || "",
+      "data.poke_weight":   s.poke_weight   || "",
+      "data.poke_hp":       parseInt(s.poke_hp || 0, 10),
+      "data.hp_current":    parseInt(s.poke_hp || 0, 10),
+      "data.poke_defense":  parseInt(s.poke_defense || 0, 10),
+      "data.poke_spdef":    parseInt(s.poke_spdef || 0, 10),
+      "data.poke_speed":    parseInt(s.poke_speed || 0, 10),
+      "data.poke_speed_ft": parseInt(s.poke_speed_ft || 0, 10),
+      "data.poke_attack":   parseInt(s.poke_attack || 0, 10),
+      "data.poke_spatk":    parseInt(s.poke_spatk || 0, 10),
+      "data.poke_atk_mod":    parseModifier(s.poke_atk_mod),
+      "data.poke_spatk_mod":  parseModifier(s.poke_spatk_mod),
+      "data.poke_effect_mod": parseModifier(s.poke_effect_mod),
+      "data.poke_skills":           s.poke_skills           || "",
+      "data.poke_stat_passives":    s.poke_stat_passives    || "",
+      "data.poke_ability_passives": s.poke_ability_passives || "",
+      "data.poke_diet":      s.poke_diet      || "",
+      "data.poke_egg_group": s.poke_egg_group || "",
+      "data.poke_nickname":  preserved.nickname,
+      "data.poke_gender":    preserved.gender,
+      "data.held_item":      preserved.held,
+      // The full list of moves at once — proper Realm list structure
+      "data.moves_list":     movesList
+    };
+
+    api.setValues(updates);
+
+    api.sendMessage(
+      "## 📥 Loaded " + srcName + " from Pokédex\n" +
+      "Stats, passives, skills, biology, and " + movesList.length + " moves copied to **" +
+      (preserved.nickname || srcName) + "**.",
+      undefined, [], []
+    );
+
+    api.delay(function() { drawTypeCanvas(); }, 100);
+  }
+
+  // ─── DRAG-DROP HANDLER ─────────────────────────────────────────
+  function onDrop(type, recordLink, sourceInfo) {
+    if (type === "pokemon") {
+      var id = recordLink && recordLink.value && recordLink.value._id;
+      if (id) loadPokemonRecord(id);
+    }
+    // For "moves", Realm's built-in list drop handling takes over via allowedListTypes
+  }
+
+  // ─── Helpers ───────────────────────────────────────────────────
+  function parseModifier(raw) {
+    if (!raw) return 0;
+    var str = String(raw).trim();
+    if (str === "") return 0;
+    if (str.charAt(0) === "+") str = str.substring(1);
+    var n = parseInt(str, 10);
+    return isNaN(n) ? 0 : n;
+  }
+
+  // Per Sean: generate a random UUID for each list item's _id
+  function generateUuid() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+      var r = Math.floor(Math.random() * 16);
+      var v = c === "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
+
+  // Build proper list-of-records structure from the poke_moves string.
+  // Per Sean: each list item needs { _id, name, unidentifiedName, recordType, data }
+  function buildMovesList(movesStr) {
+    if (!movesStr) return [];
+    var parts = movesStr.split("|");
+    var list = [];
+    for (var i = 0; i < parts.length; i++) {
+      var raw = parts[i].trim();
+      if (!raw) continue;
+      var parsed = parseSingleMove(raw);
+      if (!parsed) continue;
+
+      list.push({
+        _id: generateUuid(),
+        name: parsed.name,
+        unidentifiedName: parsed.name,
+        recordType: "pokemon_move",
+        data: {
+          move_type:     parsed.type,
+          move_category: parsed.category,
+          move_range:    parsed.range,
+          move_uses:     parsed.uses,
+          move_damage:   parsed.damage,
+          move_effect:   parsed.effect
+        }
+      });
+    }
+    return list;
+  }
+
+  function parseSingleMove(raw) {
+    var dashIdx = raw.indexOf(" - ");
+    if (dashIdx < 0) return null;
+    var name = raw.substring(0, dashIdx).trim();
+    var rest = raw.substring(dashIdx + 3).trim();
+
+    var colonIdx = rest.indexOf(":");
+    if (colonIdx < 0) return null;
+    var header = rest.substring(0, colonIdx).trim();
+    var body = rest.substring(colonIdx + 1).trim();
+
+    var category = "";
+    if (header.indexOf("Special Attack") >= 0) category = "Special Attack";
+    else if (header.indexOf("Attack") >= 0) category = "Attack";
+    else if (header.indexOf("Effect") >= 0) category = "Effect";
+    else if (header.indexOf("Field") >= 0) category = "Effect";
+
+    var type = "";
+    for (var i = 0; i < TYPE_NAMES.length; i++) {
+      var pattern = TYPE_NAMES[i];
+      var pos = header.indexOf(pattern);
+      if (pos >= 0) {
+        var before = pos === 0 ? " " : header.charAt(pos - 1);
+        var after = (pos + pattern.length >= header.length) ? " " : header.charAt(pos + pattern.length);
+        if (/[\s\(\)]/.test(before) && /[\s\(\)]/.test(after)) {
+          type = pattern;
+          break;
+        }
+      }
+    }
+
+    var range = "";
+    if (type) {
+      var typeIdx = header.indexOf(type);
+      range = header.substring(0, typeIdx).trim();
+    } else {
+      range = header.split(" ")[0];
+    }
+
+    var uses = "", damage = "", effect = "";
+    var usesMatch = body.match(/^(At-Will|\d+\/day|Once)/i);
+    if (usesMatch) {
+      uses = usesMatch[1];
+      var afterUses = body.substring(usesMatch[0].length).trim();
+      var dmgMatch = afterUses.match(/^(\d+d\d+(?:\s*\+\s*\d+)?)/);
+      if (dmgMatch) {
+        damage = dmgMatch[1];
+        effect = afterUses.substring(dmgMatch[0].length).replace(/^\.\s*/, "").trim();
+      } else {
+        effect = afterUses.replace(/^\.\s*/, "").trim();
+      }
+    } else {
+      effect = body;
+    }
+
+    return { name: name, type: type, category: category, range: range, uses: uses, damage: damage, effect: effect };
+  }
+
+  function onLoad() { drawTypeCanvas(); }
+  function onRecordChanged(event) { drawTypeCanvas(); }
 </script>
 
 <!-- ═══ POKEMON HEADER ═══ -->
@@ -149,7 +354,6 @@
         onchange="drawTypeCanvas();" placeholder="Flying..."></stringfield>
       <stringfield field="poke_stage" label="Stage" size="xs" width="40%" placeholder="Final Stage..."></stringfield>
     </div>
-    <!-- Type badge canvas -->
     <canvas field="typeCanvas" width="300" height="26"
       style="width: 100%; height: 26px; display: block;"
       onload="drawTypeCanvas();"
@@ -162,10 +366,26 @@
   </div>
 </div>
 
+<!-- ═══ LOAD FROM POKÉDEX ═══ -->
+<div class="autofill-card">
+  <div style="font-size: 10px; color: #ffcb05; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px;">
+    📥 LOAD FROM POKÉDEX — Click a Pokémon below to auto-fill stats and moves
+  </div>
+  <recordselectlist
+    field="pokedex_picker"
+    width="100%"
+    height="200px"
+    size="xs"
+    query='{"type": "pokemon", "query": {}}'
+    searchable="true"
+    selectable="true"
+    onchange="onPokedexRowSelected(value);">
+  </recordselectlist>
+</div>
+
 <!-- ═══ STATS ═══ -->
 <div class="pkm-label">✦ Stats ✦</div>
 <div class="pkm-card">
-  <!-- HP row -->
   <div style="display: flex; flex-direction: row; gap: 4px; margin-bottom: 6px;">
     <div class="pkm-stat-cell hp" style="flex: 2;">
       <div class="pkm-stat-lbl hp">Current HP</div>
@@ -182,7 +402,6 @@
       <numberfield field="poke_speed_ft" label="" size="xs" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
     </div>
   </div>
-  <!-- 4 stats row -->
   <div style="display: flex; flex-direction: row; gap: 4px;">
     <div class="pkm-stat-cell atk">
       <div class="pkm-stat-lbl atk">Attack</div>
@@ -201,7 +420,6 @@
       <numberfield field="poke_spdef" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
     </div>
   </div>
-  <!-- Move modifiers -->
   <div style="display: flex; flex-direction: row; gap: 4px; margin-top: 6px;">
     <div class="pkm-stat-cell atk" style="flex: 1;">
       <div class="pkm-stat-lbl atk">ATK Mod</div>
@@ -234,66 +452,10 @@
   </div>
 </div>
 
-<!-- ═══ MOVES ═══ -->
+<!-- ═══ MOVES (as proper list) ═══ -->
 <div class="pkm-label">✦ Moves ✦</div>
 <div class="pkm-card">
-  <div style="display: flex; flex-direction: row; gap: 4px; margin-bottom: 6px;">
-    <button field="rollMove1" size="xs" label="Roll Move 1" variant="outline"
-      onclick="rollMove(record && record.data && record.data.move1_name || 'Move 1', 'poke_atk_mod', record && record.data && record.data.move1_damage || '2d8');">
-    </button>
-    <button field="rollMove2" size="xs" label="Roll Move 2" variant="outline"
-      onclick="rollMove(record && record.data && record.data.move2_name || 'Move 2', 'poke_atk_mod', record && record.data && record.data.move2_damage || '2d8');">
-    </button>
-    <button field="rollMove3" size="xs" label="Roll Move 3" variant="outline"
-      onclick="rollMove(record && record.data && record.data.move3_name || 'Move 3', 'poke_atk_mod', record && record.data && record.data.move3_damage || '2d8');">
-    </button>
-  </div>
-
-  <!-- Move 1 -->
-  <div class="move-row">
-    <div style="display: flex; flex-direction: row; gap: 4px;">
-      <stringfield field="move1_name" label="Move 1 Name" size="xs" width="40%" placeholder="Flamethrower..."></stringfield>
-      <stringfield field="move1_type" label="Type" size="xs" width="25%" placeholder="Fire..."></stringfield>
-      <stringfield field="move1_category" label="Category" size="xs" width="35%" placeholder="Special Attack..."></stringfield>
-    </div>
-    <div style="display: flex; flex-direction: row; gap: 4px; margin-top: 2px;">
-      <stringfield field="move1_range" label="Range" size="xs" width="35%" placeholder="Ranged(20ft)..."></stringfield>
-      <stringfield field="move1_uses" label="Uses" size="xs" width="25%" placeholder="3/day..."></stringfield>
-      <stringfield field="move1_damage" label="Damage" size="xs" width="40%" placeholder="4d10..."></stringfield>
-    </div>
-    <stringfield field="move1_effect" label="Effect" size="xs" multiline="true" maxrows="2" width="100%" placeholder="On hit, if you got 15 or higher..."></stringfield>
-  </div>
-
-  <!-- Move 2 -->
-  <div class="move-row">
-    <div style="display: flex; flex-direction: row; gap: 4px;">
-      <stringfield field="move2_name" label="Move 2 Name" size="xs" width="40%" placeholder="Move name..."></stringfield>
-      <stringfield field="move2_type" label="Type" size="xs" width="25%" placeholder="Type..."></stringfield>
-      <stringfield field="move2_category" label="Category" size="xs" width="35%" placeholder="Category..."></stringfield>
-    </div>
-    <div style="display: flex; flex-direction: row; gap: 4px; margin-top: 2px;">
-      <stringfield field="move2_range" label="Range" size="xs" width="35%" placeholder="Melee..."></stringfield>
-      <stringfield field="move2_uses" label="Uses" size="xs" width="25%" placeholder="At-Will..."></stringfield>
-      <stringfield field="move2_damage" label="Damage" size="xs" width="40%" placeholder="3d8..."></stringfield>
-    </div>
-    <stringfield field="move2_effect" label="Effect" size="xs" multiline="true" maxrows="2" width="100%" placeholder="Effect description..."></stringfield>
-  </div>
-
-  <!-- Move 3 -->
-  <div class="move-row">
-    <div style="display: flex; flex-direction: row; gap: 4px;">
-      <stringfield field="move3_name" label="Move 3 Name" size="xs" width="40%" placeholder="Move name..."></stringfield>
-      <stringfield field="move3_type" label="Type" size="xs" width="25%" placeholder="Type..."></stringfield>
-      <stringfield field="move3_category" label="Category" size="xs" width="35%" placeholder="Category..."></stringfield>
-    </div>
-    <div style="display: flex; flex-direction: row; gap: 4px; margin-top: 2px;">
-      <stringfield field="move3_range" label="Range" size="xs" width="35%" placeholder="Self..."></stringfield>
-      <stringfield field="move3_uses" label="Uses" size="xs" width="25%" placeholder="1/day..."></stringfield>
-      <stringfield field="move3_damage" label="Damage" size="xs" width="40%" placeholder="5d12..."></stringfield>
-    </div>
-    <stringfield field="move3_effect" label="Effect" size="xs" multiline="true" maxrows="2" width="100%" placeholder="Effect description..."></stringfield>
-  </div>
-
+  <list field="moves_list" listtype="pokemon_move" lazy="false" scroll="auto"></list>
 </div>
 
 <!-- ═══ BIOLOGY ═══ -->
