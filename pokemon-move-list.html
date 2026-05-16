@@ -7,52 +7,59 @@
     margin-bottom: 2px;
     padding: 4px;
   }
-  .pm-type-tag {
-    display: inline-block;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    padding: 1px 6px;
-    border-radius: 8px;
-    color: #fff;
-    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
-  }
 </style>
 
 <script>
-  var PM_TYPE_COLORS = {
-    "Normal":   "#a8a878", "Fire":    "#f08030", "Water":   "#6890f0",
-    "Grass":    "#78c850", "Electric":"#f8d030", "Ice":     "#98d8d8",
-    "Fighting": "#c03028", "Poison":  "#a040a0", "Ground":  "#e0c068",
-    "Flying":   "#a890f0", "Psychic": "#f85888", "Bug":     "#a8b820",
-    "Rock":     "#b8a038", "Ghost":   "#705898", "Dragon":  "#7038f8",
-    "Dark":     "#705848", "Steel":   "#b8b8d0", "Fairy":   "#ee99ac"
-  };
-
-  // Roll this move using parent record's attack mod
+  // Roll this move.
+  // In list-item context:
+  //   `data`   = the full list-item record { _id, name, recordType, data: {move_type, ...} }
+  //   `record` = the parent Pokémon record (with stats, types, etc.)
   function rollThisMove() {
-    var d = (record && record.data) || {};
-    var moveName  = record.name || "Move";
-    var moveType  = d.move_type || "";
-    var moveCat   = d.move_category || "";
-    var dmgDice   = d.move_damage || "";
+    api.sendMessage("🟢 rollThisMove fired", undefined, [], []);
 
-    // Walk up to parent Pokémon to grab modifiers and types
-    // Note: list items don't have access to parent here; pass via parent script if needed.
-    // For now, the parent's pokemon-main.html will own the roll buttons.
-    api.promptRoll(
-      moveName + " (Accuracy Check)",
-      "1d20",
-      [],
-      {
-        rollType: "accuracy",
-        moveName: moveName,
-        moveType: moveType,
-        moveCategory: moveCat,
-        damageRoll: dmgDice
-      },
-      "system"
-    );
+    // Move data — `data` is the full record, fields live at data.data
+    var moveItem = (typeof data !== "undefined" && data) ? data : {};
+    var moveFields = moveItem.data || {};
+    var moveName = moveItem.name || "Move";
+    var moveType = moveFields.move_type || "";
+    var moveCat  = moveFields.move_category || "";
+    var dmgDice  = moveFields.move_damage || "";
+
+    // Parent Pokémon
+    var parentRec  = (typeof record !== "undefined" && record) ? record : {};
+    var parentData = parentRec.data || {};
+    var pkName = parentRec.name || "Pokémon";
+    var t1 = parentData.poke_type1 || "";
+    var t2 = parentData.poke_type2 || "";
+
+    // Choose modifier based on move category
+    var modKey = "poke_atk_mod";
+    if (moveCat && moveCat.indexOf("Special") >= 0) modKey = "poke_spatk_mod";
+    else if (moveCat === "Effect") modKey = "poke_effect_mod";
+    var mod = parseInt(parentData[modKey] || 0, 10);
+    var sign = mod >= 0 ? "+" : "";
+
+    api.sendMessage("🟢 about to roll: 1d20" + sign + mod + " for " + moveName, undefined, [], []);
+
+    try {
+      api.roll(
+        "1d20" + sign + mod,
+        {
+          rollType: "accuracy",
+          moveName: moveName,
+          moveType: moveType,
+          moveCategory: moveCat,
+          actorName: pkName,
+          attackerType1: t1,
+          attackerType2: t2,
+          damageRoll: dmgDice,
+          recordId: parentRec._id
+        }
+      );
+      api.sendMessage("🟢 api.roll returned successfully", undefined, [], []);
+    } catch(e) {
+      api.sendMessage("⚠️ api.roll threw: " + (e && e.message ? e.message : "unknown"), undefined, [], []);
+    }
   }
 </script>
 

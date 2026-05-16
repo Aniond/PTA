@@ -103,9 +103,6 @@
   "settings": {
     "otherSettings": {
       "commonScript": { "file": "common.js" }
-    },
-    "rollTypes": [
-      { "name": "system", "file": "rollhandlers/system.js" }
-    ]
+    }
   }
 }
