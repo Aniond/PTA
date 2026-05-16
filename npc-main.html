@@ -1,5 +1,521 @@
-<div style="padding: 8px;">
-  <namefield placeholder="NPC name..." size="md" bold="true" field="name"></namefield>
-  <stringfield label="Role" field="npc_role" size="xs" width="100%"></stringfield>
-  <stringfield label="Notes" field="notes" size="xs" multiline="true" maxrows="10" width="100%"></stringfield>
+<style>
+  .pkm-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #c88080;
+    text-transform: uppercase;
+    font-family: Georgia, serif;
+    text-align: center;
+    margin: 8px 0 4px 0;
+  }
+  .pkm-card {
+    background: rgba(13,10,5,0.7);
+    border: 1px solid rgba(200,40,40,0.25);
+    border-top: 2px solid rgba(200,40,40,0.55);
+    border-radius: 3px;
+    padding: 8px;
+    margin-bottom: 4px;
+  }
+  .pkm-stat-cell {
+    border-radius: 3px;
+    padding: 4px 6px;
+    text-align: center;
+    flex: 1;
+  }
+  .pkm-stat-cell.hp   { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.2); }
+  .pkm-stat-cell.atk  { background: rgba(216,56,56,0.12);   border: 1px solid rgba(216,56,56,0.4); }
+  .pkm-stat-cell.def  { background: rgba(232,184,32,0.12);  border: 1px solid rgba(232,184,32,0.4); }
+  .pkm-stat-cell.spatk { background: rgba(40,88,200,0.12);  border: 1px solid rgba(40,88,200,0.4); }
+  .pkm-stat-cell.spdef { background: rgba(88,168,48,0.12);  border: 1px solid rgba(88,168,48,0.4); }
+  .pkm-stat-cell.spd  { background: rgba(232,160,200,0.12); border: 1px solid rgba(232,160,200,0.4); }
+  .pkm-stat-lbl {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+  .pkm-stat-lbl.hp    { color: #ccc; }
+  .pkm-stat-lbl.atk   { color: #e88080; }
+  .pkm-stat-lbl.def   { color: #e8c860; }
+  .pkm-stat-lbl.spatk { color: #80a0e8; }
+  .pkm-stat-lbl.spdef { color: #98d8a0; }
+  .pkm-stat-lbl.spd   { color: #e8b0d0; }
+  .autofill-card {
+    background: linear-gradient(90deg, rgba(42,74,158,0.15) 0%, rgba(200,40,40,0.1) 100%);
+    border: 1px solid rgba(255,203,5,0.3);
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+  }
+</style>
+
+<script>
+  var TYPE_COLORS = {
+    "Normal":   "#a8a878", "Fire":    "#f08030", "Water":   "#6890f0",
+    "Grass":    "#78c850", "Electric":"#f8d030", "Ice":     "#98d8d8",
+    "Fighting": "#c03028", "Poison":  "#a040a0", "Ground":  "#e0c068",
+    "Flying":   "#a890f0", "Psychic": "#f85888", "Bug":     "#a8b820",
+    "Rock":     "#b8a038", "Ghost":   "#705898", "Dragon":  "#7038f8",
+    "Dark":     "#705848", "Steel":   "#b8b8d0", "Fairy":   "#ee99ac"
+  };
+
+  var TYPE_NAMES = [
+    "Normal","Fire","Water","Grass","Electric","Ice","Fighting","Poison",
+    "Ground","Flying","Psychic","Bug","Rock","Ghost","Dragon","Dark","Steel","Fairy"
+  ];
+
+  // ─── NATURES ───────────────────────────────────────────────────
+  // Maps to the 20 PTA3 natures, in d20 order
+  var NATURES = [
+    { name: "Lonely",   inc: "Attack",          dec: "Defense" },
+    { name: "Brave",    inc: "Attack",          dec: "Speed" },
+    { name: "Adamant",  inc: "Attack",          dec: "Special Attack" },
+    { name: "Naughty",  inc: "Attack",          dec: "Special Defense" },
+    { name: "Bold",     inc: "Defense",         dec: "Attack" },
+    { name: "Relaxed",  inc: "Defense",         dec: "Speed" },
+    { name: "Impish",   inc: "Defense",         dec: "Special Attack" },
+    { name: "Lax",      inc: "Defense",         dec: "Special Defense" },
+    { name: "Timid",    inc: "Speed",           dec: "Attack" },
+    { name: "Hasty",    inc: "Speed",           dec: "Defense" },
+    { name: "Jolly",    inc: "Speed",           dec: "Special Attack" },
+    { name: "Naive",    inc: "Speed",           dec: "Special Defense" },
+    { name: "Modest",   inc: "Special Attack",  dec: "Attack" },
+    { name: "Mild",     inc: "Special Attack",  dec: "Defense" },
+    { name: "Quiet",    inc: "Special Attack",  dec: "Speed" },
+    { name: "Rash",     inc: "Special Attack",  dec: "Special Defense" },
+    { name: "Calm",     inc: "Special Defense", dec: "Attack" },
+    { name: "Gentle",   inc: "Special Defense", dec: "Defense" },
+    { name: "Sassy",    inc: "Special Defense", dec: "Speed" },
+    { name: "Careful",  inc: "Special Defense", dec: "Special Attack" }
+  ];
+
+  // Map stat names to record fields
+  var STAT_FIELD_MAP = {
+    "Attack":          "poke_attack",
+    "Defense":         "poke_defense",
+    "Special Attack":  "poke_spatk",
+    "Special Defense": "poke_spdef",
+    "Speed":           "poke_speed"
+  };
+
+  function findNatureByName(name) {
+    if (!name) return null;
+    for (var i = 0; i < NATURES.length; i++) {
+      if (NATURES[i].name === name) return NATURES[i];
+    }
+    return null;
+  }
+
+  function rollRandomNature() {
+    var roll = Math.floor(Math.random() * 20) + 1; // 1-20
+    var nature = NATURES[roll - 1];
+    applyNature(nature, roll);
+  }
+
+  // Apply a nature: undo any previous nature's stat changes, then apply new +1/-1
+  function applyNature(newNature, roll) {
+    var d = (record && record.data) || {};
+    var prevNatureName = d.poke_nature || "";
+    var prevNature = findNatureByName(prevNatureName);
+
+    var updates = {};
+
+    // Undo previous nature (if any)
+    if (prevNature) {
+      var prevIncField = STAT_FIELD_MAP[prevNature.inc];
+      var prevDecField = STAT_FIELD_MAP[prevNature.dec];
+      if (prevIncField) {
+        updates["data." + prevIncField] = parseInt(d[prevIncField] || 0, 10) - 1;
+      }
+      if (prevDecField) {
+        updates["data." + prevDecField] = parseInt(d[prevDecField] || 0, 10) + 1;
+      }
+    }
+
+    // Apply new nature
+    var incField = STAT_FIELD_MAP[newNature.inc];
+    var decField = STAT_FIELD_MAP[newNature.dec];
+    // Use the (potentially-undone) values from updates if we already touched them, else current
+    function curStat(field) {
+      var key = "data." + field;
+      if (updates.hasOwnProperty(key)) return updates[key];
+      return parseInt(d[field] || 0, 10);
+    }
+    if (incField) {
+      updates["data." + incField] = curStat(incField) + 1;
+    }
+    if (decField) {
+      updates["data." + decField] = curStat(decField) - 1;
+    }
+    updates["data.poke_nature"] = newNature.name;
+
+    api.setValues(updates);
+
+    var msg = "## 🎲 Nature Roll\n" +
+              "**" + (d.poke_nickname || record.name || "Pokémon") + "** rolled **" + roll + "** on the d20.\n" +
+              "Nature: **" + newNature.name + "**\n" +
+              "+1 " + newNature.inc + " / -1 " + newNature.dec;
+    if (prevNature) {
+      msg += "\n_(Previous **" + prevNature.name + "** nature reverted.)_";
+    }
+    api.sendMessage(msg, undefined, [], []);
+  }
+
+  // ─── TYPE BADGE CANVAS ─────────────────────────────────────────
+  function drawTypeCanvas() {
+    var c = api.getCanvas("typeCanvas");
+    if (!c) return;
+    var W = c.width, H = c.height;
+    c.clearRect(0, 0, W, H);
+    var d = (record && record.data) || {};
+    var t1 = d.poke_type1 || "";
+    var t2 = d.poke_type2 || "";
+    var x = 4;
+    function drawBadge(type, xPos) {
+      if (!type) return xPos;
+      var col = TYPE_COLORS[type] || "#555";
+      var tw = c.measureText(type).width + 16;
+      c.beginPath();
+      c.roundRect(xPos, 2, tw, H - 4, 8);
+      c.setFillStyle(col);
+      c.fill();
+      c.setFont("700 11px sans-serif");
+      c.setTextAlign("center");
+      c.setTextBaseline("middle");
+      c.setFillStyle("#fff");
+      c.setShadowColor("rgba(0,0,0,0.5)");
+      c.setShadowBlur(2);
+      c.fillText(type, xPos + tw / 2, H / 2);
+      c.setShadowBlur(0);
+      return xPos + tw + 6;
+    }
+    x = drawBadge(t1, x);
+    drawBadge(t2, x);
+  }
+
+  // ─── LOAD FROM POKÉDEX (recordselectlist) ──────────────────────
+  // recordselectlist passes selections as an array of record objects (or a single record)
+  function onPokedexRowSelected(value) {
+    if (!value) return;
+
+    // Extract the picked record from various possible shapes
+    var picked = null;
+    if (Array.isArray(value)) {
+      picked = value[value.length - 1]; // last selected
+    } else if (typeof value === "object") {
+      picked = value;
+    } else if (typeof value === "string") {
+      // It's an ID string — fetch via getRecord
+      loadPokemonRecord(value);
+      return;
+    }
+
+    if (!picked) return;
+
+    // If we have the full record already, use it directly (faster path)
+    if (picked.data) {
+      handleLoadedRecord(picked);
+      return;
+    }
+
+    // Otherwise extract an ID and load via getRecord
+    var id = picked._id || picked.id || picked.value;
+    if (id) {
+      loadPokemonRecord(id);
+    } else {
+      api.sendMessage("⚠️ Couldn't extract record from selection.", undefined, [], []);
+    }
+  }
+
+  function loadPokemonRecord(pokemonId) {
+    api.getRecord("pokemon", pokemonId, function(srcRec) {
+      if (!srcRec) {
+        api.sendMessage("⚠️ Couldn't load that Pokémon record.", undefined, [], []);
+        return;
+      }
+      handleLoadedRecord(srcRec);
+    });
+  }
+
+  function handleLoadedRecord(srcRec) {
+    if (!srcRec.data) {
+      api.sendMessage("⚠️ Record loaded but contains no data.", undefined, [], []);
+      return;
+    }
+    if (srcRec._id === record._id) {
+      api.sendMessage("⚠️ Can't load Pokédex data from this same record.", undefined, [], []);
+      return;
+    }
+    var d = (record && record.data) || {};
+    var hasExisting = d.poke_hp || d.poke_attack;
+    if (hasExisting) {
+      api.showConfirm(
+        "Overwrite Current Stats?",
+        "Replace current stats with **" + (srcRec.name || "Pokémon") + "** Pokédex data? " +
+        "(Nickname, gender, and held item will be preserved. Moves will be replaced.)",
+        "Overwrite", "Cancel",
+        function() { applyPokedexData(srcRec); }
+      );
+    } else {
+      applyPokedexData(srcRec);
+    }
+  }
+
+  function applyPokedexData(srcRec) {
+    var s = srcRec.data || {};
+    var srcName = srcRec.name || "Pokémon";
+
+    var preserved = {
+      nickname: (record.data && record.data.poke_nickname) || "",
+      gender:   (record.data && record.data.poke_gender)   || "",
+      held:     (record.data && record.data.held_item)     || ""
+    };
+
+    // Copy moves_list directly from the source record (now a real array from CSV import).
+    // We assign fresh UUIDs so each Pokemon instance has unique list-item IDs.
+    var srcMoves = Array.isArray(s.moves_list) ? s.moves_list : [];
+    var movesList = srcMoves.map(function(m) {
+      return {
+        _id: generateUuid(),
+        name: m.name,
+        unidentifiedName: m.unidentifiedName || m.name,
+        recordType: 'pokemon_move',
+        identified: m.identified !== false,
+        data: m.data ? {
+          move_type:        m.data.move_type        || '',
+          move_category:    m.data.move_category    || '',
+          move_range:       m.data.move_range       || '',
+          move_uses:        m.data.move_uses        || '',
+          move_damage_dice: m.data.move_damage_dice || '',
+          move_effect:      m.data.move_effect      || ''
+        } : {}
+      };
+    });
+
+    var updates = {
+      "name": srcName,
+      "data.poke_type1":    s.poke_type1    || "",
+      "data.poke_type2":    s.poke_type2    || "",
+      "data.poke_stage":    s.poke_stage    || "",
+      "data.poke_size":     s.poke_size     || "",
+      "data.poke_weight":   s.poke_weight   || "",
+      "data.poke_hp":       parseInt(s.poke_hp || 0, 10),
+      "data.hp_current":    parseInt(s.poke_hp || 0, 10),
+      "data.poke_defense":  parseInt(s.poke_defense || 0, 10),
+      "data.poke_spdef":    parseInt(s.poke_spdef || 0, 10),
+      "data.poke_speed":    parseInt(s.poke_speed || 0, 10),
+      "data.poke_speed_ft": parseInt(s.poke_speed_ft || 0, 10),
+      "data.poke_attack":   parseInt(s.poke_attack || 0, 10),
+      "data.poke_spatk":    parseInt(s.poke_spatk || 0, 10),
+      "data.poke_atk_mod":    parseModifier(s.poke_atk_mod),
+      "data.poke_spatk_mod":  parseModifier(s.poke_spatk_mod),
+      "data.poke_effect_mod": parseModifier(s.poke_effect_mod),
+      "data.poke_skills":           s.poke_skills           || "",
+      "data.poke_stat_passives":    s.poke_stat_passives    || "",
+      "data.poke_ability_passives": s.poke_ability_passives || "",
+      "data.poke_diet":         s.poke_diet         || "",
+      "data.poke_egg_group":    s.poke_egg_group    || "",
+      "data.poke_hatch_rate":   s.poke_hatch_rate   || "",
+      "data.poke_habitat":      s.poke_habitat      || "",
+      "data.poke_evolution":    s.poke_evolution    || "",
+      "data.poke_proficiencies": s.poke_proficiencies || "",
+      "data.poke_nickname":  preserved.nickname,
+      "data.poke_gender":    preserved.gender,
+      "data.held_item":      preserved.held,
+      // The full list of moves at once — proper Realm list structure
+      "data.moves_list":     movesList
+    };
+
+    api.setValues(updates);
+
+    api.sendMessage(
+      "## 📥 Loaded " + srcName + " from Pokédex\n" +
+      "Stats, passives, skills, biology, and " + movesList.length + " moves copied to **" +
+      (preserved.nickname || srcName) + "**.",
+      undefined, [], []
+    );
+
+    api.delay(function() { drawTypeCanvas(); }, 100);
+  }
+
+  // ─── DRAG-DROP HANDLER ─────────────────────────────────────────
+  function onDrop(type, recordLink, sourceInfo) {
+    if (type === "pokemon") {
+      var id = recordLink && recordLink.value && recordLink.value._id;
+      if (id) loadPokemonRecord(id);
+    }
+    // For "moves", Realm's built-in list drop handling takes over via allowedListTypes
+  }
+
+  // ─── Helpers ───────────────────────────────────────────────────
+  function parseModifier(raw) {
+    if (!raw) return 0;
+    var str = String(raw).trim();
+    if (str === "") return 0;
+    if (str.charAt(0) === "+") str = str.substring(1);
+    var n = parseInt(str, 10);
+    return isNaN(n) ? 0 : n;
+  }
+
+  // Per Sean: generate a random UUID for each list item's _id
+  function generateUuid() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+      var r = Math.floor(Math.random() * 16);
+      var v = c === "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
+
+  function onLoad() { drawTypeCanvas(); }
+  function onRecordChanged(event) { drawTypeCanvas(); }
+</script>
+
+<!-- ═══ POKEMON HEADER ═══ -->
+<div style="display: flex; flex-direction: row; gap: 10px; align-items: flex-start; margin-bottom: 8px;">
+  <div style="width: 90px; height: 90px; min-width: 90px;">
+    <portrait field="portrait" width="90" height="90"></portrait>
+  </div>
+  <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+    <namefield field="name" label="Pokémon Name" size="md" bold="true" width="100%" placeholder="Pokémon name..."></namefield>
+    <div style="display: flex; flex-direction: row; gap: 6px;">
+      <stringfield field="poke_type1" label="Type 1" size="xs" width="30%"
+        onchange="drawTypeCanvas();" placeholder="Fire..."></stringfield>
+      <stringfield field="poke_type2" label="Type 2" size="xs" width="30%"
+        onchange="drawTypeCanvas();" placeholder="Flying..."></stringfield>
+      <stringfield field="poke_stage" label="Stage" size="xs" width="40%" placeholder="Final Stage..."></stringfield>
+    </div>
+    <canvas field="typeCanvas" width="300" height="26"
+      style="width: 100%; height: 26px; display: block;"
+      onload="drawTypeCanvas();"
+      onrecordchange="drawTypeCanvas();">
+    </canvas>
+    <div style="display: flex; flex-direction: row; gap: 6px;">
+      <stringfield field="poke_size" label="Size" size="xs" width="50%" placeholder="Medium..."></stringfield>
+      <stringfield field="poke_weight" label="Weight" size="xs" width="50%" placeholder="Heavy..."></stringfield>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LOAD FROM POKÉDEX ═══ -->
+<div class="autofill-card">
+  <div style="font-size: 10px; color: #ffcb05; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px;">
+    📥 LOAD FROM POKÉDEX — Click a Pokémon below to auto-fill stats and moves
+  </div>
+  <recordselectlist
+    field="pokedex_picker"
+    width="100%"
+    height="200px"
+    size="xs"
+    query='{"type": "pokemon", "query": {}}'
+    searchable="true"
+    selectable="true"
+    onchange="onPokedexRowSelected(value);">
+  </recordselectlist>
+</div>
+
+<!-- ═══ STATS ═══ -->
+<div class="pkm-label">✦ Stats ✦</div>
+<div class="pkm-card">
+  <div style="display: flex; flex-direction: row; gap: 4px; margin-bottom: 6px;">
+    <div class="pkm-stat-cell hp" style="flex: 2;">
+      <div class="pkm-stat-lbl hp">Current HP</div>
+      <numberfield field="hp_current" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell hp" style="flex: 2;">
+      <div class="pkm-stat-lbl hp">Max HP</div>
+      <numberfield field="poke_hp" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell spd" style="flex: 1;">
+      <div class="pkm-stat-lbl spd">SPD</div>
+      <numberfield field="poke_speed" label="" size="xs" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+      <div class="pkm-stat-lbl spd" style="margin-top: 1px; font-size: 8px;">(ft)</div>
+      <numberfield field="poke_speed_ft" label="" size="xs" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+  </div>
+  <div style="display: flex; flex-direction: row; gap: 4px;">
+    <div class="pkm-stat-cell atk">
+      <div class="pkm-stat-lbl atk">Attack</div>
+      <numberfield field="poke_attack" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell def">
+      <div class="pkm-stat-lbl def">Defense</div>
+      <numberfield field="poke_defense" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell spatk">
+      <div class="pkm-stat-lbl spatk">Sp. Atk</div>
+      <numberfield field="poke_spatk" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell spdef">
+      <div class="pkm-stat-lbl spdef">Sp. Def</div>
+      <numberfield field="poke_spdef" label="" size="sm" defaultvalue="0" hidecontrols="true" width="100%"></numberfield>
+    </div>
+  </div>
+  <div style="display: flex; flex-direction: row; gap: 4px; margin-top: 6px;">
+    <div class="pkm-stat-cell atk" style="flex: 1;">
+      <div class="pkm-stat-lbl atk">ATK Mod</div>
+      <numberfield field="poke_atk_mod" label="" size="xs" defaultvalue="0" hidecontrols="true" showsign="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell spatk" style="flex: 1;">
+      <div class="pkm-stat-lbl spatk">SpATK Mod</div>
+      <numberfield field="poke_spatk_mod" label="" size="xs" defaultvalue="0" hidecontrols="true" showsign="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell hp" style="flex: 1;">
+      <div class="pkm-stat-lbl hp">Effect Mod</div>
+      <numberfield field="poke_effect_mod" label="" size="xs" defaultvalue="0" hidecontrols="true" showsign="true" width="100%"></numberfield>
+    </div>
+    <div class="pkm-stat-cell hp" style="flex: 1;">
+      <div class="pkm-stat-lbl hp">Held Item</div>
+      <stringfield field="held_item" label="" size="xs" width="100%" placeholder="None"></stringfield>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PASSIVES ═══ -->
+<div class="pkm-label">✦ Passives &amp; Skills ✦</div>
+<div class="pkm-card">
+  <stringfield field="poke_stat_passives" label="Stat Passives" size="xs" multiline="true" maxrows="3" width="100%" placeholder="Growl (+1 Defense), Blaze..."></stringfield>
+  <div style="margin-top: 4px;">
+    <stringfield field="poke_ability_passives" label="Ability Passives" size="xs" multiline="true" maxrows="3" width="100%" placeholder="Overgrow, Flash Fire..."></stringfield>
+  </div>
+  <div style="margin-top: 4px;">
+    <stringfield field="poke_skills" label="Skills" size="xs" multiline="true" maxrows="2" width="100%" placeholder="Flight (can fly), Swim..."></stringfield>
+  </div>
+</div>
+
+<!-- ═══ MOVES (as proper list) ═══ -->
+<div class="pkm-label">✦ Moves ✦</div>
+<div class="pkm-card">
+  <list field="moves_list" listtype="pokemon_move" lazy="false" scroll="auto"></list>
+</div>
+
+<!-- ═══ BIOLOGY ═══ -->
+<div class="pkm-label">✦ Biology ✦</div>
+<div class="pkm-card">
+  <div style="display: flex; flex-direction: row; gap: 6px;">
+    <stringfield field="poke_diet" label="Diet" size="xs" width="33%" placeholder="Carnivore..."></stringfield>
+    <stringfield field="poke_egg_group" label="Egg Group" size="xs" width="34%" placeholder="Monster / Dragon..."></stringfield>
+    <stringfield field="poke_hatch_rate" label="Hatch Rate" size="xs" width="33%" placeholder="10 Days..."></stringfield>
+  </div>
+  <div style="margin-top: 4px;">
+    <stringfield field="poke_habitat" label="Habitat" size="xs" width="100%" placeholder="Forests / Mountains..."></stringfield>
+  </div>
+  <div style="margin-top: 4px;">
+    <stringfield field="poke_evolution" label="Evolution Chain" size="xs" multiline="true" maxrows="2" width="100%" placeholder="Charmander Charmeleon Charizard..."></stringfield>
+  </div>
+  <div style="margin-top: 4px;">
+    <stringfield field="poke_proficiencies" label="Proficiencies" size="xs" multiline="true" maxrows="3" width="100%" placeholder="Fire / Flying / Slashing..."></stringfield>
+  </div>
+  <div style="display: flex; flex-direction: row; gap: 6px; margin-top: 4px;">
+    <dropdown field="poke_nature" label="Nature" size="xs" width="33%"
+      options='[{"label":"None","value":""},{"label":"Lonely (+ATK / -DEF)","value":"Lonely"},{"label":"Brave (+ATK / -SPD)","value":"Brave"},{"label":"Adamant (+ATK / -SPATK)","value":"Adamant"},{"label":"Naughty (+ATK / -SPDEF)","value":"Naughty"},{"label":"Bold (+DEF / -ATK)","value":"Bold"},{"label":"Relaxed (+DEF / -SPD)","value":"Relaxed"},{"label":"Impish (+DEF / -SPATK)","value":"Impish"},{"label":"Lax (+DEF / -SPDEF)","value":"Lax"},{"label":"Timid (+SPD / -ATK)","value":"Timid"},{"label":"Hasty (+SPD / -DEF)","value":"Hasty"},{"label":"Jolly (+SPD / -SPATK)","value":"Jolly"},{"label":"Naive (+SPD / -SPDEF)","value":"Naive"},{"label":"Modest (+SPATK / -ATK)","value":"Modest"},{"label":"Mild (+SPATK / -DEF)","value":"Mild"},{"label":"Quiet (+SPATK / -SPD)","value":"Quiet"},{"label":"Rash (+SPATK / -SPDEF)","value":"Rash"},{"label":"Calm (+SPDEF / -ATK)","value":"Calm"},{"label":"Gentle (+SPDEF / -DEF)","value":"Gentle"},{"label":"Sassy (+SPDEF / -SPD)","value":"Sassy"},{"label":"Careful (+SPDEF / -SPATK)","value":"Careful"}]'>
+    </dropdown>
+    <dropdown field="poke_gender" label="Gender" size="xs" width="33%"
+      options='[{"label":"Male","value":"male"},{"label":"Female","value":"female"},{"label":"Unknown","value":"unknown"}]'>
+    </dropdown>
+    <stringfield field="poke_nickname" label="Nickname" size="xs" width="34%" placeholder="Optional..."></stringfield>
+  </div>
+  <div style="margin-top: 6px;">
+    <button field="rollNatureBtn" label="🎲 Roll Random Nature (d20)" size="xs" width="100%" onclick="rollRandomNature()"></button>
+  </div>
 </div>

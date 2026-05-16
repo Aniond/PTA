@@ -1,6 +1,6 @@
 {
   "name": "Pokemon Tabletop Adventures 3",
-  "description": "PTA3 ruleset for Realm VTT — full compendium with dynamic type filters",
+  "description": "PTA3 ruleset for Realm VTT",
   "version": 1,
   "records": [
     {
@@ -34,38 +34,27 @@
       "name": "Pokemon",
       "type": "pokemon",
       "minX": 620,
-      "minY": 1050,
+      "minY": 820,
       "tabs": [
         { "name": "Stats", "file": "pokemon-main.html" }
       ],
       "hideFromCompendium": false,
       "isList": false,
       "icon": "",
-      "filters": {
-        "poke_type1": "dynamic",
-        "poke_type2": "dynamic",
-        "poke_stage": "dynamic",
-        "poke_size":  "dynamic"
-      }
+      "filters": {}
     },
     {
       "name": "Pokemon Move",
       "type": "pokemon_move",
       "minX": 400,
-      "minY": 300,
+      "minY": 120,
       "tabs": [
         { "name": "Main", "file": "pokemon-move-list.html" }
       ],
       "hideFromCompendium": true,
       "isList": true,
-      "singleRow": false,
-      "showAddButton": true,
-      "showDeleteButton": true,
-      "addButtonText": "Add Move",
-      "newItemName": "New Move",
-      "emptyListText": "No moves yet. Drag from compendium to add.",
-      "disableDrop": false,
-      "allowedListTypes": ["moves"]
+      "icon": "",
+      "filters": {}
     },
     {
       "name": "Moves",
@@ -78,10 +67,7 @@
       "hideFromCompendium": false,
       "isList": false,
       "icon": "",
-      "filters": {
-        "move_type":     "dynamic",
-        "move_category": "dynamic"
-      }
+      "filters": {}
     },
     {
       "name": "Abilities",
@@ -94,15 +80,41 @@
       "hideFromCompendium": false,
       "isList": false,
       "icon": "",
-      "filters": {
-        "ability_category": "dynamic",
-        "ability_trigger":  "dynamic"
-      }
+      "filters": {}
+    },
+    {
+      "name": "Natures",
+      "type": "natures",
+      "minX": 400,
+      "minY": 200,
+      "tabs": [
+        { "name": "Main", "file": "natures-main.html" }
+      ],
+      "hideFromCompendium": false,
+      "isList": false,
+      "icon": "",
+      "filters": {}
+    },
+    {
+      "name": "Items",
+      "type": "items",
+      "minX": 450,
+      "minY": 240,
+      "tabs": [
+        { "name": "Main", "file": "items-main.html" }
+      ],
+      "hideFromCompendium": false,
+      "isList": false,
+      "icon": "",
+      "filters": {}
     }
   ],
   "settings": {
     "otherSettings": {
       "commonScript": { "file": "common.js" }
-    }
+    },
+    "rollTypes": [
+      { "name": "system", "file": "rollhandlers/system.js" }
+    ]
   }
 }

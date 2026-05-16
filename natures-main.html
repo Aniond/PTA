@@ -1,0 +1,67 @@
+<style>
+  .nat-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #c88080;
+    text-transform: uppercase;
+    font-family: Georgia, serif;
+    text-align: center;
+    margin: 8px 0 4px 0;
+  }
+  .nat-card {
+    background: rgba(13,10,5,0.7);
+    border: 1px solid rgba(200,40,40,0.25);
+    border-top: 2px solid rgba(200,40,40,0.55);
+    border-radius: 3px;
+    padding: 10px;
+    margin-bottom: 4px;
+  }
+  .nat-row {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .nat-cell {
+    flex: 1;
+    border-radius: 3px;
+    padding: 6px;
+    text-align: center;
+  }
+  .nat-cell.roll  { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); }
+  .nat-cell.inc   { background: rgba(88,168,48,0.12);   border: 1px solid rgba(88,168,48,0.4); }
+  .nat-cell.dec   { background: rgba(216,56,56,0.12);   border: 1px solid rgba(216,56,56,0.4); }
+  .nat-cell-lbl {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+</style>
+
+<!-- ═══ NATURE IDENTITY ═══ -->
+<div class="nat-label">✦ Nature ✦</div>
+<div class="nat-card">
+  <stringfield field="name" label="Nature Name" size="sm" width="100%" placeholder="Jolly..."></stringfield>
+</div>
+
+<!-- ═══ EFFECTS ═══ -->
+<div class="nat-label">✦ Effects ✦</div>
+<div class="nat-card">
+  <div class="nat-row">
+    <div class="nat-cell roll">
+      <div class="nat-cell-lbl">d20 Roll</div>
+      <stringfield field="nature_roll" label="" size="xs" width="100%" placeholder="01"></stringfield>
+    </div>
+    <div class="nat-cell inc">
+      <div class="nat-cell-lbl">Increased Stat</div>
+      <stringfield field="nature_increased" label="" size="xs" width="100%" placeholder="Attack"></stringfield>
+    </div>
+    <div class="nat-cell dec">
+      <div class="nat-cell-lbl">Decreased Stat</div>
+      <stringfield field="nature_decreased" label="" size="xs" width="100%" placeholder="Defense"></stringfield>
+    </div>
+  </div>
+  <stringfield field="nature_description" label="Description" size="xs" multiline="true" maxrows="2" width="100%" placeholder="Increases X. Decreases Y."></stringfield>
+</div>

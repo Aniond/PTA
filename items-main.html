@@ -1,0 +1,57 @@
+<style>
+  .itm-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #c88080;
+    text-transform: uppercase;
+    font-family: Georgia, serif;
+    text-align: center;
+    margin: 8px 0 4px 0;
+  }
+  .itm-card {
+    background: rgba(13,10,5,0.7);
+    border: 1px solid rgba(200,40,40,0.25);
+    border-top: 2px solid rgba(200,40,40,0.55);
+    border-radius: 3px;
+    padding: 10px;
+    margin-bottom: 4px;
+  }
+  .itm-row {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+</style>
+
+<!-- ═══ IDENTITY ═══ -->
+<div class="itm-label">✦ Item ✦</div>
+<div class="itm-card">
+  <stringfield field="name" label="Name" size="sm" width="100%" placeholder="Poké Ball..."></stringfield>
+  <div class="itm-row" style="margin-top: 6px;">
+    <dropdown field="item_category" label="Category" size="xs" width="50%"
+      options='[{"label":"Poké Ball","value":"Poké Ball"},{"label":"Medicine","value":"Medicine"},{"label":"Held Item","value":"Held Item"},{"label":"Berry","value":"Berry"},{"label":"Other","value":"Other"}]'>
+    </dropdown>
+    <stringfield field="item_subtype" label="Subtype" size="xs" width="50%" placeholder="Healing, Cure, etc..."></stringfield>
+  </div>
+  <div class="itm-row">
+    <stringfield field="item_price" label="Price" size="xs" width="50%" placeholder="100 P..."></stringfield>
+    <stringfield field="item_flavor" label="Flavor (Berries)" size="xs" width="50%" placeholder="Dry, Sweet..."></stringfield>
+  </div>
+</div>
+
+<!-- ═══ EFFECT ═══ -->
+<div class="itm-label">✦ Effect ✦</div>
+<div class="itm-card">
+  <stringfield field="item_effect" label="Effect" size="xs" multiline="true" maxrows="6" width="100%" placeholder="Effect description..."></stringfield>
+</div>
+
+<!-- ═══ BALL-SPECIFIC ═══ -->
+<div class="itm-label">✦ Capture Modifier (Poké Balls) ✦</div>
+<div class="itm-card">
+  <div class="itm-row">
+    <stringfield field="item_ball_modifier" label="Modifier" size="xs" width="33%" placeholder="-10..."></stringfield>
+    <stringfield field="item_ball_condition" label="Condition" size="xs" width="67%" placeholder="vs Bug/Water, at night..."></stringfield>
+  </div>
+  <stringfield field="item_heal_amount" label="Heal Amount (Medicine)" size="xs" width="100%" placeholder="10, 20, max..."></stringfield>
+</div>

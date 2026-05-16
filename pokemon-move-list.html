@@ -1,79 +1,179 @@
 <style>
-  .pm-row {
-    background: rgba(13,10,5,0.85);
-    border: 1px solid rgba(200,40,40,0.2);
-    border-left: 3px solid #c82828;
-    border-radius: 2px;
-    margin-bottom: 2px;
-    padding: 4px;
+  /* Compact horizontal layout */
+  .mv-row {
+    margin-bottom: 4px;
+    border-radius: 5px;
+    padding: 6px 10px;
+    background: linear-gradient(90deg, rgba(28,18,12,0.95), rgba(13,10,5,0.95));
+    border: 1px solid rgba(200,40,40,0.3);
+    border-left: 3px solid rgba(220,60,60,0.8);
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.1s ease;
+    min-height: 32px;
   }
+  .mv-row:hover {
+    background: linear-gradient(90deg, rgba(50,28,18,1), rgba(28,18,12,1));
+    border-color: rgba(255,80,80,0.55);
+    border-left-color: rgba(255,120,120,1);
+    transform: translateX(2px);
+  }
+
+  /* Name on left, biggest */
+  .mv-name {
+    font-family: Georgia, serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffeec0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    letter-spacing: 0.3px;
+    flex: 1.4;
+    min-width: 100px;
+    line-height: 1;
+  }
+
+  /* Subtle inline meta - small text, no borders */
+  .mv-meta {
+    font-family: Georgia, serif;
+    font-size: 10px;
+    color: rgba(220,200,170,0.75);
+    line-height: 1;
+    flex: 2;
+    text-align: left;
+    letter-spacing: 0.2px;
+  }
+  .mv-meta-sep { color: rgba(220,40,40,0.5); margin: 0 4px; }
+
+  /* Damage on right - big and red */
+  .mv-dmg {
+    font-family: Georgia, serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: #ff8a8a;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.7);
+    background: rgba(80,20,20,0.4);
+    border: 1px solid rgba(200,40,40,0.5);
+    border-radius: 4px;
+    padding: 3px 9px;
+    min-width: 55px;
+    text-align: center;
+    line-height: 1;
+  }
+
+  /* Strip ALL form chrome from embedded stringfields */
+  .mv-row stringfield,
+  .mv-row namefield {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    color: inherit !important;
+    display: inline !important;
+    pointer-events: none !important;
+  }
+  .mv-row stringfield *,
+  .mv-row namefield * {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    color: inherit !important;
+    font: inherit !important;
+    text-shadow: inherit !important;
+    letter-spacing: inherit !important;
+    line-height: inherit !important;
+    cursor: pointer !important;
+    pointer-events: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    display: inline !important;
+  }
+  /* Dice roll button - small, on the right */
+  .mv-dice {
+    background: rgba(80,20,20,0.5);
+    border: 1px solid rgba(220,60,60,0.7);
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: #ffeec0;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    line-height: 1;
+    user-select: none;
+  }
+  .mv-dice:hover {
+    background: rgba(150,40,40,0.7);
+    border-color: rgba(255,120,120,1);
+    color: #fff;
+  }
+  .mv-row label { display: none !important; }
 </style>
 
 <script>
-  // Roll this move.
-  // In list-item context:
-  //   `data`   = the full list-item record { _id, name, recordType, data: {move_type, ...} }
-  //   `record` = the parent Pokémon record (with stats, types, etc.)
   function rollThisMove() {
-    api.sendMessage("🟢 rollThisMove fired", undefined, [], []);
-
-    // Move data — `data` is the full record, fields live at data.data
     var moveItem = (typeof data !== "undefined" && data) ? data : {};
     var moveFields = moveItem.data || {};
     var moveName = moveItem.name || "Move";
     var moveType = moveFields.move_type || "";
     var moveCat  = moveFields.move_category || "";
-    var dmgDice  = moveFields.move_damage || "";
+    var dmgDice  = moveFields.move_damage_dice || "";
 
-    // Parent Pokémon
     var parentRec  = (typeof record !== "undefined" && record) ? record : {};
     var parentData = parentRec.data || {};
-    var pkName = parentRec.name || "Pokémon";
+    var pkName = parentRec.name || "Pokemon";
     var t1 = parentData.poke_type1 || "";
     var t2 = parentData.poke_type2 || "";
 
-    // Choose modifier based on move category
     var modKey = "poke_atk_mod";
     if (moveCat && moveCat.indexOf("Special") >= 0) modKey = "poke_spatk_mod";
     else if (moveCat === "Effect") modKey = "poke_effect_mod";
-    var mod = parseInt(parentData[modKey] || 0, 10);
-    var sign = mod >= 0 ? "+" : "";
+    var modVal = parseInt(parentData[modKey] || 0, 10);
 
-    api.sendMessage("🟢 about to roll: 1d20" + sign + mod + " for " + moveName, undefined, [], []);
-
-    try {
-      api.roll(
-        "1d20" + sign + mod,
-        {
-          rollType: "accuracy",
-          moveName: moveName,
-          moveType: moveType,
-          moveCategory: moveCat,
-          actorName: pkName,
-          attackerType1: t1,
-          attackerType2: t2,
-          damageRoll: dmgDice,
-          recordId: parentRec._id
-        }
-      );
-      api.sendMessage("🟢 api.roll returned successfully", undefined, [], []);
-    } catch(e) {
-      api.sendMessage("⚠️ api.roll threw: " + (e && e.message ? e.message : "unknown"), undefined, [], []);
+    var modifiers = [];
+    if (modVal !== 0) {
+      modifiers.push({
+        name: modKey === "poke_atk_mod" ? "ATK Mod" : modKey === "poke_spatk_mod" ? "SpATK Mod" : "Effect Mod",
+        value: modVal,
+        active: true,
+        valueType: "number"
+      });
     }
+
+    api.promptRoll(
+      pkName + " - " + moveName,
+      "1d20",
+      modifiers,
+      {
+        rollType: "accuracy",
+        moveName: moveName,
+        moveType: moveType,
+        moveCategory: moveCat,
+        actorName: pkName,
+        attackerType1: t1,
+        attackerType2: t2,
+        damageRoll: dmgDice,
+        recordId: parentRec._id
+      },
+      "system"
+    );
   }
 </script>
 
-<div class="pm-row">
-  <div style="display: flex; flex-direction: row; gap: 6px; align-items: center;">
-    <namefield field="name" label="" bold="true" size="xs" width="35%" placeholder="Move name..."></namefield>
-    <stringfield field="move_type" label="" size="xs" width="18%" placeholder="Type"></stringfield>
-    <stringfield field="move_category" label="" size="xs" width="22%" placeholder="Category"></stringfield>
-    <stringfield field="move_damage" label="" size="xs" width="15%" placeholder="3d10"></stringfield>
-    <button field="rollBtn" size="xs" label="🎲" variant="outline" onclick="rollThisMove();"></button>
-  </div>
-  <div style="display: flex; flex-direction: row; gap: 6px; margin-top: 3px;">
-    <stringfield field="move_range" label="" size="xs" width="30%" placeholder="Range"></stringfield>
-    <stringfield field="move_uses" label="" size="xs" width="20%" placeholder="Uses"></stringfield>
-    <stringfield field="move_effect" label="" size="xs" multiline="true" maxrows="2" width="50%" placeholder="Effect..."></stringfield>
-  </div>
+<div class="mv-row">
+  <span class="mv-name">
+    <namefield field="name" label="" size="xs" placeholder="—"></namefield>
+  </span>
+  <span class="mv-meta">
+    <stringfield field="move_type" label="" size="xs" placeholder="—"></stringfield><span class="mv-meta-sep">·</span><stringfield field="move_category" label="" size="xs" placeholder="—"></stringfield><span class="mv-meta-sep">·</span><stringfield field="move_range" label="" size="xs" placeholder="—"></stringfield><span class="mv-meta-sep">·</span><stringfield field="move_uses" label="" size="xs" placeholder="—"></stringfield>
+  </span>
+  <span class="mv-dmg">
+    <stringfield field="move_damage_dice" label="" size="xs" placeholder="—"></stringfield>
+  </span>
+  <button field="rollBtn" size="xs" label="🎲" variant="outline" onclick="rollThisMove();"></button>
 </div>

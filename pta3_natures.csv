@@ -1,0 +1,21 @@
+recordType,name,nature_roll,nature_increased,nature_decreased,nature_description
+natures,Lonely,01,Attack,Defense,Increases Attack. Decreases Defense.
+natures,Brave,02,Attack,Speed,Increases Attack. Decreases Speed.
+natures,Adamant,03,Attack,Special Attack,Increases Attack. Decreases Special Attack.
+natures,Naughty,04,Attack,Special Defense,Increases Attack. Decreases Special Defense.
+natures,Bold,05,Defense,Attack,Increases Defense. Decreases Attack.
+natures,Relaxed,06,Defense,Speed,Increases Defense. Decreases Speed.
+natures,Impish,07,Defense,Special Attack,Increases Defense. Decreases Special Attack.
+natures,Lax,08,Defense,Special Defense,Increases Defense. Decreases Special Defense.
+natures,Timid,09,Speed,Attack,Increases Speed. Decreases Attack.
+natures,Hasty,10,Speed,Defense,Increases Speed. Decreases Defense.
+natures,Jolly,11,Speed,Special Attack,Increases Speed. Decreases Special Attack.
+natures,Naive,12,Speed,Special Defense,Increases Speed. Decreases Special Defense.
+natures,Modest,13,Special Attack,Attack,Increases Special Attack. Decreases Attack.
+natures,Mild,14,Special Attack,Defense,Increases Special Attack. Decreases Defense.
+natures,Quiet,15,Special Attack,Speed,Increases Special Attack. Decreases Speed.
+natures,Rash,16,Special Attack,Special Defense,Increases Special Attack. Decreases Special Defense.
+natures,Calm,17,Special Defense,Attack,Increases Special Defense. Decreases Attack.
+natures,Gentle,18,Special Defense,Defense,Increases Special Defense. Decreases Defense.
+natures,Sassy,19,Special Defense,Speed,Increases Special Defense. Decreases Speed.
+natures,Careful,20,Special Defense,Special Attack,Increases Special Defense. Decreases Special Attack.
